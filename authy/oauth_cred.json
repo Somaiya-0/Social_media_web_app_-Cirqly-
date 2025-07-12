@@ -1,0 +1,16 @@
+{
+  "web": {
+    "client_id": "1040134063540-k5kvrfm78fh999obm1mhidsvl8gee723.apps.googleusercontent.com",
+    "project_id": "cirqly-465720",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "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",
+    "redirect_uris": [
+      "http://127.0.0.1:8000/accounts/google/login/callback/"
+    ],
+    "javascript_origins": [
+      "http://127.0.0.1:8000"
+    ]
+  }
+}

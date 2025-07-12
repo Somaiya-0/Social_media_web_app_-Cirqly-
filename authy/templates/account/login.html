@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load socialaccount %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[#21183c]">
+  <div class="w-full max-w-md bg-[#21183c] rounded shadow-md p-8">
+    <h2 class="text-4xl font-bold mb-2 text-white text-left">Sign in to your account</h2>
+    <div class="mb-6 text-gray-300 text-left">
+      Don't have an account?
+      <a href="{% url 'account_signup' %}" class="text-[#a78bfa] underline hover:text-white">Create one</a>
+    </div>
+    <form method="post" action="{% url 'account_login' %}" class="space-y-4">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        <label class="sr-only" for="id_login">{% trans "Username or Email" %}</label>
+        <input class="w-full px-4 py-3 rounded bg-[#2b2148] text-white placeholder-gray-400 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#a78bfa] transition"
+               type="text" name="login" id="id_login" placeholder="Username or Email" required value="{{ form.login.value|default_if_none:'' }}">
+        {{ form.login.errors }}
+      </div>
+      <div>
+        <label class="sr-only" for="id_password">{% trans "Password" %}</label>
+        <div class="relative">
+          <input class="w-full px-4 py-3 rounded bg-[#2b2148] text-white placeholder-gray-400 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#a78bfa] transition pr-10"
+                 type="password" name="password" id="id_password" placeholder="Password" required>
+          <button type="button" tabindex="-1" class="absolute inset-y-0 right-0 flex items-center px-3 text-[#6b628d] focus:outline-none" onclick="togglePassword('id_password', this)">
+            <svg id="eye_id_password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path id="eye_open_id_password" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12C3.75 7.5 7.5 4.5 12 4.5s8.25 3 9.75 7.5c-1.5 4.5-5.25 7.5-9.75 7.5s-8.25-3-9.75-7.5z" />
+              <circle id="eye_pupil_id_password" cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </button>
+        </div>
+        {{ form.password.errors }}
+      </div>
+      <div>
+        <label class="inline-flex items-center">
+          <input type="checkbox" name="remember" class="form-checkbox h-4 w-4 text-[#a78bfa] rounded bg-[#2b2148] border-[#6b628d]">
+          <span class="ml-2 text-sm text-gray-200">{% trans "Remember me" %}</span>
+        </label>
+      </div>
+      <button type="submit" class="w-full bg-[#a78bfa] text-white px-4 py-3 rounded font-semibold hover:bg-[#8b5cf6] transition text-lg">{% trans "Login" %}</button>
+    </form>
+    <div class="mt-6 flex justify-between items-center">
+      <a href="{% url 'account_reset_password' %}" class="text-sm text-[#a78bfa] hover:underline">{% trans "Forgot password?" %}</a>
+      <a href="{% url 'account_signup' %}" class="text-sm text-[#a78bfa] hover:underline">{% trans "Sign up" %}</a>
+    </div>
+    <div class="flex items-center my-8">
+      <div class="flex-grow border-t border-[#32255a]"></div>
+      <span class="px-3 text-gray-400 text-sm">Or sign in with</span>
+      <div class="flex-grow border-t border-[#32255a]"></div>
+    </div>
+    <div class="flex space-x-4">
+      <a href="{% provider_login_url 'google' %}" class="flex-1 flex items-center justify-center space-x-2 bg-white text-gray-700 px-4 py-3 rounded hover:bg-gray-100 transition font-semibold border border-gray-200 shadow">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
+        <span>Google</span>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+function togglePassword(fieldId, btn) {
+  const input = document.getElementById(fieldId);
+  const eye = btn.querySelector('svg');
+  if (input.type === 'password') {
+    input.type = 'text';
+    // eye open style
+    eye.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 12C3.75 7.5 7.5 4.5 12 4.5s8.25 3 9.75 7.5c-1.5 4.5-5.25 7.5-9.75 7.5s-8.25-3-9.75-7.5z" />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>`;
+  } else {
+    input.type = 'password';
+    // eye closed style
+    eye.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M2.25 12C3.75 7.5 7.5 4.5 12 4.5c1.66 0 3.22.34 4.61.95M19.07 16.07A9.96 9.96 0 0 1 12 19.5c-4.5 0-8.25-3-9.75-7.5a9.982 9.982 0 0 1 4.5-5.5m6.02-2.37A9.96 9.96 0 0 1 21.75 12c-.49 1.47-1.29 2.85-2.33 4.07" />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>`;
+  }
+}
+</script>
+{% endblock %}

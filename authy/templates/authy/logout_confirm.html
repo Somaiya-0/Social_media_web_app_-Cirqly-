@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex items-center justify-center h-screen">
+    <div class="relative z-10 bg-white rounded shadow p-8 w-96">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Confirm Logout</h2>
+        <p class="mb-6">Are you sure you want to logout?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Yes, Logout</button>
+                <a href="/" class="bg-gray-300 text-gray-800 px-4 py-2 rounded">Cancel</a>
+            </div>
+        </form>
+    </div>
+    <div class="fixed inset-0 bg-black opacity-40 z-0"></div>
+</div>
+{% endblock %}
+
+
+
+
+<!-- are bhai shunsi to fix hoise oida :) -->
