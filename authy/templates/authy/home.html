@@ -208,13 +208,18 @@
     <a class="navbar-brand fw-bold" href="#" style="color: #6d3bd7; font-size: 2rem; padding-left: 25px;">Cirqly</a>
     
     <!-- Center: Search bar, hidden on mobile -->
-    <form class="d-none d-lg-flex mx-auto" style="width: 45%;">
-      <input class="form-control rounded-pill border-0 bg-light px-4" type="search" placeholder="Type in search" aria-label="Search" style="background: #f5f5f5; margin-left: 80px;">
+    <form class="d-none d-lg-flex mx-auto" style="width: 58%;">
+    <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5;">
+        <span class="input-group-text bg-light border-0">
+        <i class="bi bi-search"></i>
+        </span>
+        <input type="search" class="form-control border-0 bg-light" placeholder="Type in search" aria-label="Search">
+    </div>
     </form>
 
     <!-- Right: Icons + User -->
     <div class="d-flex align-items-center gap-3 ms-auto">
-      <i class="bi bi-bell" style="font-size: 1.2rem; color: #222;"></i>
+      <i class="bi bi-bell" style="font-size: 1.2rem; color: #6d3bd7;"></i>
       {% if user.is_authenticated %}
         <span class="fw-semibold">
         {{ user.get_full_name|default:user.username }}
@@ -244,7 +249,7 @@
                         <li class="list-group-item"><i class="bi bi-chat-dots-fill me-2 icon-purple"></i> Messages</li>
                         <li class="list-group-item"><i class="bi bi-people-fill me-2 icon-purple"></i> Friends</li>
                     </ul>
-                    <div class="mb-2 fw-semibold">Groups</div>
+                    <div class="mb-2 fw-semibold">Following</div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=1" class="group-avatar"> Dog Lovers</li>
                         <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=2" class="group-avatar"> GamerZzZz</li>
@@ -263,7 +268,7 @@
         </div>
         <!-- Main Content -->
         <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
-            <div class="main-content mb-0">
+            <div class="main-content mb-0" style="margin-bottom: 10px;">
                 <div class="mb-4">
                     <div class="p-3 rounded bg-white" style="box-shadow:0 0 0 1px #eee; border-radius:16px;">
                         <div class="d-flex align-items-center mb-3 gap-3">
@@ -305,7 +310,7 @@
                 <div class="mb-4 p-3 bg-light rounded">
                     <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
                         <img src="https://i.pravatar.cc/40?img=7" class="profile-img me-2">
-                        <span><b>Amelie Shiba</b> created a photo album</span>
+                        <span><b>Amelie Shiba</b> </span>
                         <span class="ms-auto text-muted small">Thu, 17 August 10:40 AM</span>
                     </div>
                     <div class="mb-2">
@@ -344,21 +349,8 @@
         <!-- Rightbar -->
         <div class="col-lg-3 col-md-12 col-12 order-lg-3 order-md-3 order-3">
             <div class="rightbar mb-0 h-100">
-                <div class="mb-4">
-                    <div class="fw-bold mb-2">Community chats</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=8" class="chat-avatar"> Dog Lovers</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=9" class="chat-avatar"> Copenhagen friends</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=10" class="chat-avatar"> Y2K Car owners</div>
-                </div>
-                <div class="mb-4">
-                    <div class="fw-bold mb-2">Group chats</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=11" class="chat-avatar"> Grill party org</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=12" class="chat-avatar"> Sneaker freaks</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=13" class="chat-avatar"> Music in the city</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=14" class="chat-avatar"> School org</div>
-                </div>
                 <div>
-                    <div class="fw-bold mb-2">Online contacts</div>
+                    <div class="fw-bold mb-2">Suggestions</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=15" class="contact-avatar"> Mark Larsen</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=16" class="contact-avatar"> Ethan Reynolds</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=17" class="contact-avatar"> Ava Thompson</div>
@@ -367,7 +359,7 @@
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=20" class="contact-avatar"> Isabel Hughes</div>
                 </div>
             </div>
-        </div>
+        
     </div>
 </div>
 </body>
