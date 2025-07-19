@@ -1,12 +1,375 @@
-{% extends "base.html" %}
-{% load socialaccount %}
-{% block content %}
-<div class="flex flex-col items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow text-center">
-        <h2 class="text-2xl font-bold text-green-600 mb-4">Successfully logged in!</h2>
-        <form action="{% url 'logout_confirm' %}" method="get">
-            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
-        </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cirqly</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f0f0;
+            margin-top: 0;
+            padding-top: 70px; /* Height of navbar */
+        }
+        .sidebar, .main-content, .rightbar {
+            background: #fff;
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 95vh;
+        }
+        /* FIXED SIDEBARS */
+        .sidebar, .rightbar {
+            border-radius: 20px;
+            margin-top: 1.5rem;
+            padding: 2rem 1rem;
+            margin: 0 !important;
+            position: fixed;
+            top: 70px; 
+            height: calc(100vh - 70px); /* Adjusted height */
+            overflow-y: auto;
+            max-height: none;
+            z-index: 1020;
+        }
+        .sidebar {
+            left: 0;
+            width: 25%;
+            max-width: 320px;
+            min-width: 240px;
+        }
+        .rightbar {
+            right: 0;
+            width: 25%;
+            max-width: 320px;
+            min-width: 240px;
+        }
+        /* MAIN CONTENT IS NOT FIXED, NO MARGIN */
+        .main-content {
+            padding: 2rem;
+            border-radius: 20px;
+            margin-top: 1.5rem;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #8b5cf6 !important;
+        }
+        .sidebar .bi,
+        .rightbar .bi,
+        .icon-purple {
+            color: #8b5cf6 !important;
+        }
+        .sidebar .list-group-item {
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .post-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .comment-icon, .share-icon, .like-icon {
+            color: #8b5cf6;
+        }
+        .group-avatar, .chat-avatar, .contact-avatar {
+            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+            margin-right: 10px;
+        }
+        .event-icon {
+            font-size: 1.3rem;
+            color: #8b5cf6;
+        }
+        .form-control:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+        }
+        .btn-cirqly {
+            background-color: #8b5cf6;
+            color: #fff;
+            border-radius: 8px;
+        }
+        .btn-cirqly:hover {
+            background-color: #6d3bd7;
+        }
+        .btn-logout {
+            background-color: #8b5cf6;
+            color: #fff;
+            border-radius: 8px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+        }
+        .btn-logout:hover {
+            background-color: #6d3bd7;
+        }
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+        nav.navbar {
+            margin-top: 0 !important;
+            border-bottom: none;
+            box-shadow: none;
+           
+        }
+        .navbar .form-control {
+            background: #f5f5f5;
+            font-size: 1rem;
+        }
+
+        
+
+        @media (max-width: 991.98px) {
+            .sidebar, .rightbar, .main-content {
+                min-height: unset;
+                max-height: unset;
+                position: static;
+                width: 100%;
+                left: unset;
+                right: unset;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .sidebar, .rightbar {
+                padding: 1rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .navbar .form-control {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar, .main-content, .rightbar {
+                margin-bottom: 1rem;
+            }
+            .sidebar {
+                min-width: unset;
+                width: 100%;
+            }
+            .main-content, .rightbar {
+                padding: 0.5rem;
+            }
+            .post-img {
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .sidebar, .main-content, .rightbar {
+                padding: 0.5rem;
+            }
+            .logo {
+                font-size: 1.5rem;
+            }
+            .profile-img, .group-avatar, .chat-avatar, .contact-avatar {
+                width: 28px; height: 28px;
+            }
+            .post-img {
+                height: 80px;
+            }
+            .input-group {
+                max-width: 100% !important;
+            }
+        }
+
+        .gap-mobile {
+            gap: 0.5rem;
+        }
+        nav.navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+            background-color: #fff;
+            border-bottom: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+<!-- NAVBAR SECTION -->
+<nav class="navbar navbar-expand-lg bg-white" style="border-bottom: none; box-shadow: none; margin-bottom: 3px;">
+  <div class="container-fluid align-items-center py-2" >
+    <!-- Left: Logo/Brand -->
+    <a class="navbar-brand fw-bold" href="#" style="color: #6d3bd7; font-size: 2rem; padding-left: 25px;">Cirqly</a>
+    
+    <!-- Center: Search bar, hidden on mobile -->
+    <form class="d-none d-lg-flex mx-auto" style="width: 45%;">
+      <input class="form-control rounded-pill border-0 bg-light px-4" type="search" placeholder="Type in search" aria-label="Search" style="background: #f5f5f5; margin-left: 80px;">
+    </form>
+
+    <!-- Right: Icons + User -->
+    <div class="d-flex align-items-center gap-3 ms-auto">
+      <i class="bi bi-bell" style="font-size: 1.2rem; color: #222;"></i>
+      {% if user.is_authenticated %}
+        <span class="fw-semibold">
+        {{ user.get_full_name|default:user.username }}
+            </span>
+        {% else %}
+            <span class="fw-semibold">Guest</span>
+        {% endif %}
+      <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="rounded-circle" style="width:40px; height:40px;" alt="profile">
+    </div>
+  </div>
+</nav>
+<!-- MAIN CONTENT STARTS -->
+<div class="container-fluid">
+    <div class="row g-4 flex-wrap">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
+            <div class="sidebar mb-0 h-100 d-flex flex-column">
+                <div>
+                    <div class="mb-4 ">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><i class="bi bi-house-door-fill me-2 icon-purple"></i> Home</li>
+                            <li class="list-group-item"><i class="bi bi-person-circle me-2 icon-purple"></i> Profile</li>
+                        </ul>
+                    </div>
+                    <div class="mb-2 fw-semibold">Favorites</div>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="bi bi-chat-dots-fill me-2 icon-purple"></i> Messages</li>
+                        <li class="list-group-item"><i class="bi bi-people-fill me-2 icon-purple"></i> Friends</li>
+                    </ul>
+                    <div class="mb-2 fw-semibold">Groups</div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=1" class="group-avatar"> Dog Lovers</li>
+                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=2" class="group-avatar"> GamerZzZz</li>
+                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=3" class="group-avatar"> Travel Girls.</li>
+                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=4" class="group-avatar"> cat memez</li>
+                    </ul>
+                </div>
+                <div class="sidebar-bottom mt-4">
+                    <form action="{% url 'logout_confirm' %}" method="get">
+                        <button type="submit" class="btn btn-logout">
+                            <span>Log Out</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
+            <div class="main-content mb-0">
+                <div class="mb-4">
+                    <div class="p-3 rounded bg-white" style="box-shadow:0 0 0 1px #eee; border-radius:16px;">
+                        <div class="d-flex align-items-center mb-3 gap-3">
+                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="profile-img">
+                            <input type="text" class="form-control flex-grow-1" placeholder="What's on your mind?">
+                            <button class="btn btn-cirqly">Post</button>
+                        </div>
+                        <div class="d-flex justify-content-start gap-3 px-1">
+                            <span><i class="bi bi-image" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
+                            <span><i class="bi bi-paperclip" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
+                            <span><i class="bi bi-emoji-smile" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Posts -->
+                <div class="mb-4 p-3 bg-light rounded">
+                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
+                        <img src="https://i.pravatar.cc/40?img=6" class="profile-img me-2">
+                        <span><b>Robert Hammond</b> is <b>feeling happy</b></span>
+                        <span class="ms-auto text-muted small">20 min ago</span>
+                    </div>
+                    <div class="mb-2">
+                        My wife prepared a surprise trip for me. I'm so thankful and I love her very much. Here are some of the best shots from our trip to Sri Lanka. <span class="icon-purple">😍</span>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6 col-sm-6 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="post-img">
+                        </div>
+                        <div class="col-6 col-sm-6 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="post-img">
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted small">
+                        <span><i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>Liked 230</span>
+                        <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 6</span>
+                    </div>
+                </div>
+                <!-- Post 2 -->
+                <div class="mb-4 p-3 bg-light rounded">
+                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
+                        <img src="https://i.pravatar.cc/40?img=7" class="profile-img me-2">
+                        <span><b>Amelie Shiba</b> created a photo album</span>
+                        <span class="ms-auto text-muted small">Thu, 17 August 10:40 AM</span>
+                    </div>
+                    <div class="mb-2">
+                        I'm selling these clothes. Anyone interested?<br>
+                        Or shall we do a swap evening at mine? <span class="icon-purple">😜</span>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1465101178521-cce08b4c1f83?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1513451713350-dee890297c4a?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1465101139161-618b7c6b88a1?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                        <div class="col-4 col-sm-4 col-xs-12">
+                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center text-muted small mt-2">
+                        <span><i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>Liked 110</span>
+                        <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Rightbar -->
+        <div class="col-lg-3 col-md-12 col-12 order-lg-3 order-md-3 order-3">
+            <div class="rightbar mb-0 h-100">
+                <div class="mb-4">
+                    <div class="fw-bold mb-2">Community chats</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=8" class="chat-avatar"> Dog Lovers</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=9" class="chat-avatar"> Copenhagen friends</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=10" class="chat-avatar"> Y2K Car owners</div>
+                </div>
+                <div class="mb-4">
+                    <div class="fw-bold mb-2">Group chats</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=11" class="chat-avatar"> Grill party org</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=12" class="chat-avatar"> Sneaker freaks</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=13" class="chat-avatar"> Music in the city</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=14" class="chat-avatar"> School org</div>
+                </div>
+                <div>
+                    <div class="fw-bold mb-2">Online contacts</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=15" class="contact-avatar"> Mark Larsen</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=16" class="contact-avatar"> Ethan Reynolds</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=17" class="contact-avatar"> Ava Thompson</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=18" class="contact-avatar"> Haarper Mitchell</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=19" class="contact-avatar"> Pablo Morandi</div>
+                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=20" class="contact-avatar"> Isabel Hughes</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock %}
+</body>
+</html>
+
