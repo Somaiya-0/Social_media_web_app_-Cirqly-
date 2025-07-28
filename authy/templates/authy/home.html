@@ -241,13 +241,17 @@
                     <div class="mb-4 ">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><i class="bi bi-house-door-fill me-2 icon-purple"></i> Home</li>
-                            <li class="list-group-item"><i class="bi bi-person-circle me-2 icon-purple"></i> Profile</li>
+                            <li class="list-group-item">
+                            <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                                <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
+                            </a>
+                            </li>
                         </ul>
                     </div>
                     <div class="mb-2 fw-semibold">Favorites</div>
                     <ul class="list-group list-group-flush mb-4">
                         <li class="list-group-item"><i class="bi bi-chat-dots-fill me-2 icon-purple"></i> Messages</li>
-                        <li class="list-group-item"><i class="bi bi-people-fill me-2 icon-purple"></i> Friends</li>
+                        
                     </ul>
                     <div class="mb-2 fw-semibold">Following</div>
                     <ul class="list-group list-group-flush">
