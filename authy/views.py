@@ -15,22 +15,40 @@ def logout_confirm(request):
         return redirect("/")
     return render(request, "authy/logout_confirm.html")
 
+# @login_required
+# def profile_view(request, username):
+#     user = get_object_or_404(User, username=username)
+#     profile = user.profile
+
+#     if request.method == "POST" and request.user == user:
+#         bio = request.POST.get('bio', '')
+#         profile.bio = bio
+#         profile.save()
+        
+#         return redirect('profile', username=user.username)
+
+#     return render(request, "account/profile.html", {
+#         "profile_user": user,
+#         "profile": profile,
+#     })
+
+
+
 @login_required
 def profile_view(request, username):
     user = get_object_or_404(User, username=username)
     profile = user.profile
 
     if request.method == "POST" and request.user == user:
-        bio = request.POST.get('bio', '')
-        profile.bio = bio
-        profile.save()
-        
-        return redirect('profile', username=user.username)
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile', username=user.username)
+    else:
+        form = ProfileUpdateForm(instance=profile)
 
     return render(request, "account/profile.html", {
         "profile_user": user,
         "profile": profile,
+        "form": form,
     })
-
-
-

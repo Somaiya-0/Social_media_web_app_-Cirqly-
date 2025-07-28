@@ -100,32 +100,26 @@
   }
 </style>
 
-<div style="border:solid; border-color: #a78bfa; max-width: 800px; margin: 40px auto; padding: 20px; background-color: rgb(248, 243, 243); color: #5c5c5d; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
+<div style="border: solid; border-color: #a78bfa; max-width: 800px; margin: 40px auto; padding: 20px; background-color: rgb(248, 243, 243); color: #5c5c5d; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
 
   <!-- Left: profile image and info -->
   <div style="display: flex; gap: 16px; align-items: center;">
 
-    <!-- <img src="/static/profile_pics/default.jpg" alt="Default Profile" style="width:96px; height:96px; border-radius:50%; border:4px solid #a78bfa;"> -->
- 
-    {% if profile.image and profile.image.url %}
-      <img src="{{ profile.image.url }}" alt="Profile Picture" style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 4px solid #a78bfa;">
-    {% else %}
-      <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile Picture" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid #a78bfa; background: #ddd; padding: 20px;">
-    {% endif %}
+    <!-- Clickable Profile Picture -->
+    <label for="uploadProfilePic" style="cursor: pointer; display: inline-block; border-radius: 50%; border: 4px solid #a78bfa; overflow: hidden; width: 150px; height: 150px;">
+      {% if profile.image and profile.image.url %}
+        <img src="{{ profile.image.url }}" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover; display: block;">
+      {% else %}
+        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile Picture" style="width: 150px; height: 150px; object-fit: cover; display: block; background: #ddd; padding: 20px;">
+      {% endif %}
+    </label>
+    <input type="file" id="uploadProfilePic" accept="image/*" style="display:none;">
 
     <div>
       <h2 style="margin: 0; font-weight: 700; color: #4a3fdb;">
         {{ profile_user.get_full_name|default:profile_user.username }}
       </h2>
       <p style="color: #777; margin-top: 4px;">@{{ profile_user.username }}</p>
-
-      <!-- {% if messages %}
-        <div>
-          {% for message in messages %}
-            <p style="color:green; font-weight:bold;">{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %} -->
 
       <p id="bio-text">{{ profile.bio|default:"No bio yet." }}</p>
 
@@ -148,6 +142,21 @@
     {% else %}
       <button id="openPostModalBtn" class="btn-primary" style="margin-top: 10px;">Create Post</button>
     {% endif %}
+  </div>
+</div>
+
+<!-- Profile Picture Upload Modal -->
+<div id="picUploadModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="picUploadModalTitle">
+  <div class="modal">
+    <h3 id="picUploadModalTitle">Update Profile Picture</h3>
+    <form method="POST" action="{% url 'profile' profile_user.username %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="image" accept="image/*" required>
+      <div class="modal-buttons">
+        <button type="submit" class="btn-primary">Upload</button>
+        <button type="button" id="closePicUploadModalBtn" class="btn-secondary">Cancel</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -183,35 +192,71 @@
 </div>
 
 <script>
-  // Bio modal controls
+  // Profile Picture Upload modal
+  const picUploadModal = document.getElementById('picUploadModal');
+  const profilePicLabel = document.querySelector('label[for="uploadProfilePic"]');
+  const closePicUploadBtn = document.getElementById('closePicUploadModalBtn');
+
+  if (profilePicLabel && picUploadModal && closePicUploadBtn) {
+    profilePicLabel.addEventListener('click', (e) => {
+      e.preventDefault(); // prevent file input dialog directly opening
+      picUploadModal.style.display = 'flex';
+      picUploadModal.setAttribute('aria-hidden', 'false');
+    });
+
+    closePicUploadBtn.addEventListener('click', () => {
+      picUploadModal.style.display = 'none';
+      picUploadModal.setAttribute('aria-hidden', 'true');
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === picUploadModal) {
+        picUploadModal.style.display = 'none';
+        picUploadModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === "Escape" && picUploadModal.style.display === 'flex') {
+        picUploadModal.style.display = 'none';
+        picUploadModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  // Bio modal
   const bioModal = document.getElementById('bioModal');
   const openBioBtn = document.getElementById('openBioModalBtn');
   const closeBioBtn = document.getElementById('closeBioModalBtn');
 
-  openBioBtn?.addEventListener('click', () => {
-    bioModal.style.display = 'flex';
-    bioModal.setAttribute('aria-hidden', 'false');
-  });
+  if (openBioBtn && bioModal && closeBioBtn) {
+    openBioBtn.addEventListener('click', () => {
+      bioModal.style.display = 'flex';
+      bioModal.setAttribute('aria-hidden', 'false');
+    });
 
-  closeBioBtn?.addEventListener('click', () => {
-    bioModal.style.display = 'none';
-    bioModal.setAttribute('aria-hidden', 'true');
-  });
+    closeBioBtn.addEventListener('click', () => {
+      bioModal.style.display = 'none';
+      bioModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
-  // Post modal controls
+  // Post modal
   const postModal = document.getElementById('postModal');
   const openPostBtn = document.getElementById('openPostModalBtn');
   const closePostBtn = document.getElementById('closePostModalBtn');
 
-  openPostBtn?.addEventListener('click', () => {
-    postModal.style.display = 'flex';
-    postModal.setAttribute('aria-hidden', 'false');
-  });
+  if (openPostBtn && postModal && closePostBtn) {
+    openPostBtn.addEventListener('click', () => {
+      postModal.style.display = 'flex';
+      postModal.setAttribute('aria-hidden', 'false');
+    });
 
-  closePostBtn?.addEventListener('click', () => {
-    postModal.style.display = 'none';
-    postModal.setAttribute('aria-hidden', 'true');
-  });
+    closePostBtn.addEventListener('click', () => {
+      postModal.style.display = 'none';
+      postModal.setAttribute('aria-hidden', 'true');
+    });
+  }
 
   // Close modals on outside click
   window.addEventListener('click', (event) => {
@@ -228,11 +273,11 @@
   // Close modals on ESC key
   window.addEventListener('keydown', (e) => {
     if(e.key === "Escape") {
-      if(bioModal.style.display === 'flex') {
+      if(bioModal && bioModal.style.display === 'flex') {
         bioModal.style.display = 'none';
         bioModal.setAttribute('aria-hidden', 'true');
       }
-      if(postModal.style.display === 'flex') {
+      if(postModal && postModal.style.display === 'flex') {
         postModal.style.display = 'none';
         postModal.setAttribute('aria-hidden', 'true');
       }
