@@ -128,7 +128,18 @@
             font-size: 1rem;
         }
 
-        
+        #search-results {
+        position: absolute;
+        top: 45px;
+        left: 0;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1050;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
 
         @media (max-width: 991.98px) {
             .sidebar, .rightbar, .main-content {
@@ -208,14 +219,19 @@
     <a class="navbar-brand fw-bold" href="#" style="color: #6d3bd7; font-size: 2rem; padding-left: 25px;">Cirqly</a>
     
     <!-- Center: Search bar, hidden on mobile -->
-    <form class="d-none d-lg-flex mx-auto" style="width: 58%;">
-    <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5;">
+    <form method="get" action="{% url 'search_users' %}" style=" width: 500px;">
+    <form method="get" action="{% url 'search_users' %}" class="d-none d-lg-flex mx-auto" style="width: 58%;">
+    <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5;  width: 100%;">
         <span class="input-group-text bg-light border-0">
-        <i class="bi bi-search"></i>
+            <i class="bi bi-search"></i>
         </span>
-        <input type="search" class="form-control border-0 bg-light" placeholder="Type in search" aria-label="Search">
+        <input type="text" id="user-search" name="q" class="form-control border-0 bg-light" placeholder="Search users..." autocomplete="off" aria-label="Search">
+        <!-- Search results dropdown -->
+        <div id="search-results" style="position:absolute; top:40px; width:100%; z-index:1050;"></div>
     </div>
     </form>
+
+
 
     <!-- Right: Icons + User -->
     <div class="d-flex align-items-center gap-3 ms-auto">
@@ -250,8 +266,11 @@
                     </div>
                     <div class="mb-2 fw-semibold">Favorites</div>
                     <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item"><i class="bi bi-chat-dots-fill me-2 icon-purple"></i> Messages</li>
+                        <li class="list-group-item">
                         
+                        <a href="{% url 'chatlist' %}">
+                        <i class="bi bi-chat-dots-fill me-2 icon-purple"></i>Message</a>
+                    </li>
                     </ul>
                     <div class="mb-2 fw-semibold">Following</div>
                     <ul class="list-group list-group-flush">
@@ -273,6 +292,7 @@
         <!-- Main Content -->
         <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
             <div class="main-content mb-0" style="margin-bottom: 10px;">
+                 {% block content %}
                 <div class="mb-4">
                     <div class="p-3 rounded bg-white" style="box-shadow:0 0 0 1px #eee; border-radius:16px;">
                         <div class="d-flex align-items-center mb-3 gap-3">
@@ -348,13 +368,14 @@
                         <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 3</span>
                     </div>
                 </div>
+                 {% endblock %}
             </div>
         </div>
         <!-- Rightbar -->
         <div class="col-lg-3 col-md-12 col-12 order-lg-3 order-md-3 order-3">
             <div class="rightbar mb-0 h-100">
                 <div>
-                    <div class="fw-bold mb-2">Suggestions</div>
+                    <div class="fw-bold mb-2">Chats</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=15" class="contact-avatar"> Mark Larsen</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=16" class="contact-avatar"> Ethan Reynolds</div>
                     <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=17" class="contact-avatar"> Ava Thompson</div>
@@ -366,6 +387,57 @@
         
     </div>
 </div>
+
+<script>
+const input = document.getElementById('user-search');
+const resultsDiv = document.getElementById('search-results');
+let timer = null;
+
+input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (!q) {
+        resultsDiv.innerHTML = '';
+        return;
+    }
+
+    timer = setTimeout(() => {
+        fetch("{% url 'search_suggest' %}?q=" + encodeURIComponent(q), {
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+        })
+        .then(r => r.json())
+        .then(data => {
+            resultsDiv.innerHTML = '';
+            if (data.users.length) {
+                data.users.forEach(u => {
+                    const a = document.createElement('a');
+                    a.href = u.profile_url;
+                    a.className = "d-flex align-items-center p-2 bg-white mb-1 rounded text-decoration-none shadow-sm";
+                    a.innerHTML = `
+                        <img src="${u.profile_image}" class="profile-img me-2">
+                        <div>
+                            <div class="fw-semibold text-dark">${u.username}</div>
+                            <small class="text-muted">${u.full_name || ''}</small>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(a);
+                });
+            } else {
+                resultsDiv.innerHTML = '<div class="p-2 bg-white rounded shadow-sm">No users found</div>';
+            }
+        })
+        .catch(console.error);
+    }, 250);
+});
+
+document.addEventListener('click', e => {
+    if (!resultsDiv.contains(e.target) && e.target !== input) {
+        resultsDiv.innerHTML = '';
+    }
+});
+</script>
+
+
+
 </body>
 </html>
-

@@ -25,7 +25,18 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',        
     'allauth.socialaccount.providers.google',
+    'channels',
+    'chat',
 ]
+
+ASGI_APPLICATION = 'cirqly.asgi.application'  
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
+
 SITE_ID = 1
 
 MIDDLEWARE = [

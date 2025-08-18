@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
-{% get_media_prefix as media_prefix %}
 
 {% block content %}
 
 <style>
-  /* Modal background overlay */
+  /* --- Modal styles --- */
   .modal-overlay {
     position: fixed;
     z-index: 1000;
@@ -17,8 +16,6 @@
     justify-content: center;
     animation: fadeIn 0.3s forwards;
   }
-
-  /* Modal container */
   .modal {
     background: white;
     border-radius: 12px;
@@ -29,126 +26,62 @@
     position: relative;
     animation: slideIn 0.3s forwards;
   }
-
-  /* Modal header */
-  .modal h3 {
-    margin-top: 0;
-    font-weight: 700;
-    color: #4a3fdb;
-  }
-
-  /* Textarea styling */
-  .modal textarea {
-    width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    border-radius: 8px;
-    border: 1.5px solid #ccc;
-    resize: vertical;
-    transition: border-color 0.3s;
-  }
-  .modal textarea:focus {
-    border-color: #4a3fdb;
-    outline: none;
-  }
-
-  /* Buttons container */
-  .modal-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-
-  /* Button styles */
-  .btn-primary {
-    background-color: #4a3fdb;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-  }
-  .btn-primary:hover {
-    background-color: #362fc9;
-  }
-
-  .btn-secondary {
-    background-color: #aaa;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-  }
-  .btn-secondary:hover {
-    background-color: #888;
-  }
-
-  /* Animations */
-  @keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
-  }
-  @keyframes slideIn {
-    from {opacity: 0; transform: translateY(-20px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
+  .modal h3 { margin-top:0; font-weight:700; color:#6d3bd7; }
+  .modal textarea { width:100%; padding:12px; font-size:15px; border-radius:8px; border:1.5px solid #ccc; resize:vertical; transition:border-color 0.3s; }
+  .modal textarea:focus { border-color:#6d3bd7; outline:none; }
+  .modal-buttons { margin-top:20px; display:flex; justify-content:flex-end; gap:12px; }
+  .btn-primary { background-color:#6d3bd7; color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:600; cursor:pointer; transition:background-color 0.25s ease; }
+  .btn-primary:hover { background-color:#362fc9; }
+  .btn-secondary { background-color:#aaa; color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:600; cursor:pointer; transition:background-color 0.25s ease; }
+  .btn-secondary:hover { background-color:#888; }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  @keyframes slideIn { from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
 </style>
 
 <div style="border: solid; border-color: #a78bfa; max-width: 800px; margin: 40px auto; padding: 20px; background-color: rgb(248, 243, 243); color: #5c5c5d; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
 
-  <!-- Left: profile image and info -->
-  <div style="display: flex; gap: 16px; align-items: center;">
-
-    <!-- Clickable Profile Picture -->
-    <label for="uploadProfilePic" style="cursor: pointer; display: inline-block; border-radius: 50%; border: 4px solid #a78bfa; overflow: hidden; width: 150px; height: 150px;">
+  <!-- Left: profile info -->
+  <div style="display:flex; gap:16px; align-items:center;">
+    <!-- Profile Picture -->
+    <label for="uploadProfilePic" style="cursor:pointer; display:inline-block; border-radius:50%; border:4px solid #a78bfa; overflow:hidden; width:150px; height:150px;">
       {% if profile.image and profile.image.url %}
-        <img src="{{ profile.image.url }}" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover; display: block;">
+        <img src="{{ profile.image.url }}" alt="Profile Picture" style="width:150px;height:150px;object-fit:cover;">
       {% else %}
-        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile Picture" style="width: 150px; height: 150px; object-fit: cover; display: block; background: #ddd; padding: 20px;">
+        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile" style="width:150px;height:150px;object-fit:cover; background:#ddd; padding:20px;">
       {% endif %}
     </label>
-    <input type="file" id="uploadProfilePic" accept="image/*" style="display:none;">
+    <input type="file" id="uploadProfilePic" style="display:none;">
 
     <div>
-      <h2 style="margin: 0; font-weight: 700; color: #4a3fdb;">
-        {{ profile_user.get_full_name|default:profile_user.username }}
-      </h2>
-      <p style="color: #777; margin-top: 4px;">@{{ profile_user.username }}</p>
-
+      <h2 style="margin:0; font-weight:700; color:#6d3bd7;">{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+      <p style="color:#777; margin-top:4px;">@{{ profile_user.username }}</p>
       <p id="bio-text">{{ profile.bio|default:"No bio yet." }}</p>
-
       {% if request.user == profile_user %}
-        <button id="openBioModalBtn" class="btn-primary" style="margin-top: 6px;">Add/Edit Bio</button>
+        <button id="openBioModalBtn" class="btn-primary" style="margin-top:6px;">Add/Edit Bio</button>
       {% endif %}
     </div>
   </div>
 
   <!-- Right: followers and buttons -->
-  <div style="text-align: right; font-size: 14px; color: #7d7b7b;">
+  <div style="text-align:right; font-size:14px; color:#7d7b7b;">
     <div><strong>{{ profile_user.profile.followers.count }}</strong> Followers</div>
     <div><strong>{{ profile_user.following.count }}</strong> Following</div>
 
     {% if request.user != profile_user %}
-      <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top: 8px;">
+      <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top:8px;">
         {% csrf_token %}
         <button type="submit" class="btn-primary">Follow</button>
       </form>
     {% else %}
-      <button id="openPostModalBtn" class="btn-primary" style="margin-top: 10px;">Create Post</button>
+      <button id="openPostModalBtn" class="btn-primary" style="margin-top:10px;">Create Post</button>
     {% endif %}
   </div>
 </div>
 
-<!-- Profile Picture Upload Modal -->
-<div id="picUploadModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="picUploadModalTitle">
+<!-- --- Profile Picture Modal --- -->
+<div id="picUploadModal" class="modal-overlay">
   <div class="modal">
-    <h3 id="picUploadModalTitle">Update Profile Picture</h3>
+    <h3>Update Profile Picture</h3>
     <form method="POST" action="{% url 'profile' profile_user.username %}" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="file" name="image" accept="image/*" required>
@@ -160,10 +93,10 @@
   </div>
 </div>
 
-<!-- Bio Modal -->
-<div id="bioModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="bioModalTitle">
+<!-- --- Bio Modal --- -->
+<div id="bioModal" class="modal-overlay">
   <div class="modal">
-    <h3 id="bioModalTitle">Edit Bio</h3>
+    <h3>Edit Bio</h3>
     <form method="POST" action="{% url 'profile' profile_user.username %}">
       {% csrf_token %}
       <textarea name="bio" rows="5" placeholder="Write something about yourself...">{{ profile.bio }}</textarea>
@@ -175,14 +108,14 @@
   </div>
 </div>
 
-<!-- Create Post Modal -->
-<div id="postModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+<!-- --- Post Modal --- -->
+<div id="postModal" class="modal-overlay">
   <div class="modal">
-    <h3 id="postModalTitle">Create New Post</h3>
-    <form method="POST" action="" enctype="multipart/form-data">
+    <h3>Create New Post</h3>
+    <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
       {% csrf_token %}
       <textarea name="content" rows="5" placeholder="What's on your mind?" required></textarea>
-      <input type="file" name="image" style="margin-top: 10px;">
+      <input type="file" name="image" style="margin-top:10px;">
       <div class="modal-buttons">
         <button type="submit" class="btn-primary">Post</button>
         <button type="button" id="closePostModalBtn" class="btn-secondary">Cancel</button>
@@ -191,98 +124,57 @@
   </div>
 </div>
 
+<!-- --- Posts List --- -->
+<div style="margin-top:40px;">
+  <h3>Posts</h3>
+  {% for post in profile_user.posts.all|dictsortreversed:"created_at" %}
+    <div style="border:1px solid #ccc; padding:12px; margin-bottom:12px; border-radius:8px;">
+      <p>{{ post.content }}</p>
+      {% if post.image %}
+        <img src="{{ post.image.url }}" style="max-width:100%; border-radius:8px; margin-top:8px;">
+      {% endif %}
+      <small style="color:#777;">Posted on {{ post.created_at|date:"M d, Y H:i" }}</small>
+    </div>
+  {% empty %}
+    <p>No posts yet.</p>
+  {% endfor %}
+</div>
+
 <script>
-  // Profile Picture Upload modal
-  const picUploadModal = document.getElementById('picUploadModal');
-  const profilePicLabel = document.querySelector('label[for="uploadProfilePic"]');
-  const closePicUploadBtn = document.getElementById('closePicUploadModalBtn');
+  // --- Modal JS ---
+  function setupModal(openBtnId, modalId, closeBtnId){
+    const modal = document.getElementById(modalId);
+    const openBtn = document.getElementById(openBtnId);
+    const closeBtn = document.getElementById(closeBtnId);
 
-  if (profilePicLabel && picUploadModal && closePicUploadBtn) {
-    profilePicLabel.addEventListener('click', (e) => {
-      e.preventDefault(); // prevent file input dialog directly opening
-      picUploadModal.style.display = 'flex';
-      picUploadModal.setAttribute('aria-hidden', 'false');
-    });
+    if(openBtn){
+      openBtn.addEventListener('click', ()=> {
+        modal.style.display = 'flex';
+      });
+    }
+    if(closeBtn){
+      closeBtn.addEventListener('click', ()=> {
+        modal.style.display = 'none';
+      });
+    }
 
-    closePicUploadBtn.addEventListener('click', () => {
-      picUploadModal.style.display = 'none';
-      picUploadModal.setAttribute('aria-hidden', 'true');
-    });
-
-    window.addEventListener('click', (event) => {
-      if (event.target === picUploadModal) {
-        picUploadModal.style.display = 'none';
-        picUploadModal.setAttribute('aria-hidden', 'true');
+    window.addEventListener('click', (e)=> {
+      if(e.target === modal){
+        modal.style.display = 'none';
       }
     });
 
-    window.addEventListener('keydown', (e) => {
-      if (e.key === "Escape" && picUploadModal.style.display === 'flex') {
-        picUploadModal.style.display = 'none';
-        picUploadModal.setAttribute('aria-hidden', 'true');
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && modal.style.display === 'flex'){
+        modal.style.display = 'none';
       }
     });
   }
 
-  // Bio modal
-  const bioModal = document.getElementById('bioModal');
-  const openBioBtn = document.getElementById('openBioModalBtn');
-  const closeBioBtn = document.getElementById('closeBioModalBtn');
-
-  if (openBioBtn && bioModal && closeBioBtn) {
-    openBioBtn.addEventListener('click', () => {
-      bioModal.style.display = 'flex';
-      bioModal.setAttribute('aria-hidden', 'false');
-    });
-
-    closeBioBtn.addEventListener('click', () => {
-      bioModal.style.display = 'none';
-      bioModal.setAttribute('aria-hidden', 'true');
-    });
-  }
-
-  // Post modal
-  const postModal = document.getElementById('postModal');
-  const openPostBtn = document.getElementById('openPostModalBtn');
-  const closePostBtn = document.getElementById('closePostModalBtn');
-
-  if (openPostBtn && postModal && closePostBtn) {
-    openPostBtn.addEventListener('click', () => {
-      postModal.style.display = 'flex';
-      postModal.setAttribute('aria-hidden', 'false');
-    });
-
-    closePostBtn.addEventListener('click', () => {
-      postModal.style.display = 'none';
-      postModal.setAttribute('aria-hidden', 'true');
-    });
-  }
-
-  // Close modals on outside click
-  window.addEventListener('click', (event) => {
-    if (event.target === bioModal) {
-      bioModal.style.display = 'none';
-      bioModal.setAttribute('aria-hidden', 'true');
-    }
-    if (event.target === postModal) {
-      postModal.style.display = 'none';
-      postModal.setAttribute('aria-hidden', 'true');
-    }
-  });
-
-  // Close modals on ESC key
-  window.addEventListener('keydown', (e) => {
-    if(e.key === "Escape") {
-      if(bioModal && bioModal.style.display === 'flex') {
-        bioModal.style.display = 'none';
-        bioModal.setAttribute('aria-hidden', 'true');
-      }
-      if(postModal && postModal.style.display === 'flex') {
-        postModal.style.display = 'none';
-        postModal.setAttribute('aria-hidden', 'true');
-      }
-    }
-  });
+  // Setup modals
+  setupModal('openBioModalBtn','bioModal','closeBioModalBtn');
+  setupModal('openPostModalBtn','postModal','closePostModalBtn');
+  setupModal('uploadProfilePic','picUploadModal','closePicUploadModalBtn');
 </script>
 
 {% endblock %}
