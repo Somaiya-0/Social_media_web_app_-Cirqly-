@@ -209,6 +209,34 @@
             border-bottom: none;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         }
+
+
+        .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-item {
+    gap: 0.5rem;
+}
+
+.comment-content {
+    background: #f0f2f5;
+    padding: 6px 10px;
+    border-radius: 18px;
+    max-width: 90%;
+}
+
+.comment-form input[name="content"] {
+    padding: 6px 12px;
+}
+
+.comment-form button {
+    padding: 6px 12px;
+}
+
     </style>
 </head>
 <body>
@@ -395,15 +423,49 @@
                         <i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>
                         <span class="like-count">{{ post.total_likes }}</span> 
                     </button>
-                    <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment</span>
+
+                    <button class="comment-btn" data-post-id="{{ post.id }}">
+                        💬<span class="comment-count">{{ post.comments.count }}</span>
+                    </button>
+                   
+
+                    
+                    </div>
+                    {% empty %}
+                    <p>No posts from people you follow yet.</p>
+                    {% endfor %}
+                
+
+                    {% for post in posts %}
+                
+
+                    <!-- Full comments section (hidden initially) -->
+                    <div class="comments-section" id="comments-{{ post.id }}" style="display:none; margin-top:8px;">
+                        <div class="comments-list">
+                            {% for comment in post.comments.all %}
+                            <div class="d-flex align-items-start mb-2 comment-item">
+                                <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar me-2">
+                                <div class="comment-content bg-light rounded px-2 py-1">
+                                    <div class="fw-semibold">{{ comment.user.username }}</div>
+                                    <div>{{ comment.content }}</div>
+                                    <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Add comment form -->
+                        <form class="comment-form d-flex align-items-center mt-2" data-post-id="{{ post.id }}">
+                            {% csrf_token %}
+                            <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar me-2">
+                            <input type="text" name="content" class="form-control rounded-pill me-2" placeholder="Write a comment..." required>
+                            <button type="submit" class="btn btn-cirqly btn-sm">Post</button>
+                        </form>
+                    </div>
+
+                    
+                    {% endfor %}
                 </div>
-                </div>
-                {% empty %}
-                <p>No posts from people you follow yet.</p>
-                {% endfor %}
-
-
-
                  {% endblock %}
             </div>
         </div>
@@ -496,7 +558,64 @@ document.querySelectorAll('.like-btn').forEach(button => {
         .catch(console.error);
     });
 });
+
+
+// document.querySelectorAll('.comment-btn').forEach(btn => {
+//     btn.addEventListener('click', function() {
+//         const postId = this.dataset.postId;
+//         const commentsDiv = document.getElementById('comments-' + postId);
+//         commentsDiv.style.display = commentsDiv.style.display === 'none' ? 'block' : 'none';
+//     });
+// });
+
+// document.querySelectorAll('.comment-form').forEach(form => {
+//     form.addEventListener('submit', function(e){
+//         e.preventDefault();
+//         const postId = this.dataset.postId;
+//         const input = this.querySelector('input[name="content"]');
+//         const content = input.value.trim();
+//         if(!content) return;
+
+//         fetch("{% url 'add_comment' %}", {
+//             method: 'POST',
+//             headers: {
+//                 'X-CSRFToken': '{{ csrf_token }}',
+//                 'X-Requested-With': 'XMLHttpRequest',
+//                 'Content-Type': 'application/x-www-form-urlencoded',
+//             },
+//             body: 'post_id=' + postId + '&content=' + encodeURIComponent(content)
+//         })
+//         .then(res => res.json())
+//         .then(data => {
+//             const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
+//               // Create new comment div
+//     const commentDiv = document.createElement('div');
+//     commentDiv.className = 'd-flex align-items-start mb-2 comment-item';
+    
+//     commentDiv.innerHTML = `
+//         <img src="${data.user_profile_image}" class="comment-avatar me-2">
+//         <div class="comment-content bg-light rounded px-2 py-1">
+//             <div class="fw-semibold">${data.username}</div>
+//             <div>${data.content}</div>
+//             <small class="text-muted">just now</small>
+//         </div>
+//     `;
+
+//       commentsList.appendChild(commentDiv);
+//     input.value = '';
+
+//             // Update preview link
+//             const previewLink = document.querySelector('.view-comments-link[data-post-id="' + postId + '"]');
+//             if(previewLink){
+//                 previewLink.textContent = `View all ${data.total_comments} comment${data.total_comments > 1 ? 's' : ''}`;
+//             }
+//         })
+//         .catch(console.error);
+//     });
+// });
+
 </script>
+<script src="{% static 'js/comments.js' %}"></script>
 
 
 

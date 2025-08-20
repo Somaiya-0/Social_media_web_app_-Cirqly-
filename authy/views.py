@@ -3,19 +3,17 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from .models import Post,Profile,Follow
+from .models import Post,Profile,Follow,Comment
 from .forms import PostForm
 from django.views.decorators.http import require_POST
 
 @login_required
 def home(request):
-    # Get all users except current user
+  
     users = User.objects.exclude(id=request.user.id)
-    
-    # Get the users that the current user is following
+
     following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
-    
-    # Get posts from users the current user is following
+
     posts = Post.objects.filter(user__id__in=following_users).order_by('-created_at')
     
     context = {
@@ -39,7 +37,7 @@ def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
     profile = get_object_or_404(Profile, user=profile_user)
 
-    # check if logged in user is already following this profile_user
+ 
     is_following = Follow.objects.filter(
         follower=request.user,
         following=profile_user
@@ -98,11 +96,11 @@ def search_suggest(request):
 @login_required
 def create_post(request):
     if request.method == 'POST':
-        content = request.POST.get('content')   # matches PostForm + Post model
-        image = request.FILES.get('post_image') # matches PostForm + Post model
+        content = request.POST.get('content')   
+        image = request.FILES.get('post_image') 
 
         new_post = Post.objects.create(
-            user=request.user,   # use FK, not username string
+            user=request.user,  
             content=content,
             post_image=image
         )
@@ -143,3 +141,28 @@ def like_post(request):
         liked = True
 
     return JsonResponse({'liked': liked, 'total_likes': post.total_likes()})
+
+@login_required
+@require_POST
+def add_comment(request):
+    post_id = request.POST.get('post_id')
+    content = request.POST.get('content')
+    post = get_object_or_404(Post, id=post_id)
+
+    comment = Comment.objects.create(
+        user=request.user,
+        post=post,
+        content=content
+    )
+
+    profile_image_url = ''
+    if hasattr(request.user, 'profile') and request.user.profile.image:
+        profile_image_url = request.user.profile.image.url
+
+    return JsonResponse({
+        'success': True,
+        'username': request.user.username,
+        'content': comment.content,
+        'user_profile_image': profile_image_url,
+        'total_comments': post.comments.count()
+    })
