@@ -4,8 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .forms import ProfileUpdateForm
 from django.http import JsonResponse
-from .models import Post
+from .models import Post,Profile
 from .forms import PostForm
+from .models import Follow
 
 @login_required
 def home(request):
@@ -19,65 +20,30 @@ def logout_confirm(request):
         return redirect("/")
     return render(request, "authy/logout_confirm.html")
 
-# @login_required
-# def profile_view(request, username):
-#     user = get_object_or_404(User, username=username)
-#     profile = user.profile
-
-#     if request.method == "POST" and request.user == user:
-#         bio = request.POST.get('bio', '')
-#         profile.bio = bio
-#         profile.save()
-        
-#         return redirect('profile', username=user.username)
-
-#     return render(request, "account/profile.html", {
-#         "profile_user": user,
-#         "profile": profile,
-#     })
-
-
-
-# @login_required
-# def profile_view(request, username):
-#     user = get_object_or_404(User, username=username)
-#     profile = user.profile
-
-#     if request.method == "POST" and request.user == user:
-#         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('profile', username=user.username)
-#     else:
-#         form = ProfileUpdateForm(instance=profile)
-
-#     return render(request, "account/profile.html", {
-#         "profile_user": user,
-#         "profile": profile,
-#         "form": form,
-#     })
-
 
 
 @login_required
 def profile_view(request, username):
-    user = get_object_or_404(User, username=username)
-    profile = user.profile
+    profile_user = get_object_or_404(User, username=username)
+    profile = get_object_or_404(Profile, user=profile_user)
 
-    # Only handle profile update (image/bio)
-    if request.method == "POST" and request.user == user and 'image' in request.FILES or 'bio' in request.POST:
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('profile', username=user.username)
-    else:
-        form = ProfileUpdateForm(instance=profile)
+    # check if logged in user is already following this profile_user
+    is_following = Follow.objects.filter(
+        follower=request.user,
+        following=profile_user
+    ).exists()
 
-    return render(request, "account/profile.html", {
-        "profile_user": user,
+    followers_count = Follow.objects.filter(following=profile_user).count()
+    following_count = Follow.objects.filter(follower=profile_user).count()
+
+    context = {
+        "profile_user": profile_user,
         "profile": profile,
-        "form": form,
-    })
+        "is_following": is_following,   # 🔥 tells template Follow vs Following
+        "followers_count": followers_count,
+        "following_count": following_count,
+    }
+    return render(request, "account/profile.html", context)
 
 
 
@@ -130,7 +96,19 @@ def create_post(request):
     return redirect('profile', username=request.user.username)
 
 
+
+
+@login_required
 def follow_user(request, username):
-    user_to_follow = get_object_or_404(User, username=username)
-    # do follow logic here
-    return redirect('profile', username=username)
+    target_user = get_object_or_404(User, username=username)
+
+    if request.user != target_user:  # prevent following self
+        follow, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=target_user
+        )
+        if not created:
+            # Already following -> unfollow
+            follow.delete()
+
+    return redirect('profile', username=target_user.username)

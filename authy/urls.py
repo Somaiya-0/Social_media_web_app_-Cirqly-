@@ -10,6 +10,7 @@ urlpatterns = [
     path('search/suggest/', views.search_suggest, name='search_suggest'),
     path('create-post/', views.create_post, name='create_post'),
     # urls.py
-    path('follow/<str:username>/', views.follow_user, name='follow_user')
+    path('follow/<str:username>/', views.follow_user, name='follow_user'),
+
 
 ]

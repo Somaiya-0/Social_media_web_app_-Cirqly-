@@ -64,17 +64,23 @@
 
   <!-- Right: followers and buttons -->
   <div style="text-align:right; font-size:14px; color:#7d7b7b;">
-    <div><strong>{{ profile_user.profile.followers.count }}</strong> Followers</div>
-    <div><strong>{{ profile_user.following.count }}</strong> Following</div>
+    <div><strong>{{ profile_user.follower_relations.count }}</strong> Followers</div>
+  <div><strong>{{ profile_user.following_relations.count }}</strong> Following</div>
+
 
     {% if request.user != profile_user %}
-      <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top:8px;">
-        {% csrf_token %}
-        <button type="submit" class="btn-primary">Follow</button>
-      </form>
+  <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top:8px;">
+    {% csrf_token %}
+    {% if is_following %}
+      <button type="submit" class="btn btn-danger">Unfollow</button>
     {% else %}
-      <button id="openPostModalBtn" class="btn-primary" style="margin-top:10px;">Create Post</button>
+      <button type="submit" class="btn btn-primary">Follow</button>
     {% endif %}
+  </form>
+{% else %}
+  <button id="openPostModalBtn" class="btn-primary" style="margin-top:10px;">Create Post</button>
+{% endif %}
+
   </div>
 </div>
 
