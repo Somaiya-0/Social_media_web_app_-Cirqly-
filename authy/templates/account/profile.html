@@ -130,21 +130,41 @@
   </div>
 </div>
 
-<!-- --- Posts List --- -->
+
+<!-- --- Posts List  --- -->
 <div style="margin-top:40px;">
   <h3>Posts</h3>
   {% for post in profile_user.posts.all|dictsortreversed:"created_at" %}
-    <div style="border:1px solid #ccc; padding:12px; margin-bottom:12px; border-radius:8px;">
-      <p>{{ post.content }}</p>
-      {% if post.image %}
-        <img src="{{ post.image.url }}" style="max-width:100%; border-radius:8px; margin-top:8px;">
-      {% endif %}
-      <small style="color:#777;">Posted on {{ post.created_at|date:"M d, Y H:i" }}</small>
+    <div style="border:1px solid #ccc; border-radius:8px; margin-bottom:20px; background:#fff;">
+      <!-- Post Header -->
+      <div style="display:flex; align-items:center; padding:10px;">
+        <img src="{{ profile.image.url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:10px;">
+        <div>
+          <strong>{{ profile_user.username }}</strong><br>
+          <small style="color:#777;">{{ post.created_at|date:"M d, Y H:i" }}</small>
+        </div>
+      </div>
+      <!-- Post Content -->
+      <div style="padding:0 10px 10px 10px;">
+        <p>{{ post.content }}</p>
+        {% if post.image %}
+          <img src="{{ post.image.url }}" style="width:100%; border-radius:8px; margin-top:8px;">
+        {% endif %}
+      </div>
+      <!-- Post Actions -->
+      <div style="padding:0 10px 10px 10px; display:flex; align-items:center; gap:15px; color:#555;">
+        <button class="like-btn" data-post-id="{{ post.id }}" style="border:none; background:none; cursor:pointer;">
+          <i class="like-icon {% if user in post.likes.all %}text-primary{% endif %}">❤️</i>
+          <span class="like-count">{{ post.total_likes }}</span>
+        </button>
+        <span>Comments: {{ post.comments.count }}</span>
+      </div>
     </div>
   {% empty %}
     <p>No posts yet.</p>
   {% endfor %}
 </div>
+
 
 <script>
   // --- Modal JS ---
@@ -181,6 +201,33 @@
   setupModal('openBioModalBtn','bioModal','closeBioModalBtn');
   setupModal('openPostModalBtn','postModal','closePostModalBtn');
   setupModal('uploadProfilePic','picUploadModal','closePicUploadModalBtn');
+
+  // --- Like button JS ---
+  document.querySelectorAll('.like-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch("{% url 'like_post' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'post_id=' + postId
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.querySelector('.like-count').textContent = data.total_likes;
+            if(data.liked){
+                this.querySelector('.like-icon').classList.add('text-primary');
+            } else {
+                this.querySelector('.like-icon').classList.remove('text-primary');
+            }
+        })
+        .catch(console.error);
+    });
+  });
 </script>
+
 
 {% endblock %}

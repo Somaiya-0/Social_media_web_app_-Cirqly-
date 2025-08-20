@@ -368,6 +368,42 @@
                         <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 3</span>
                     </div>
                 </div>
+
+
+                <!-- Posts -->
+                {% for post in posts %}
+                <div class="mb-4 p-3 bg-light rounded">
+                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
+                        {% if post.user.profile.image %}
+                            <img src="{{ post.user.profile.image.url }}" class="profile-img me-2">
+                        {% else %}
+                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="profile-img me-2">
+                        {% endif %}
+                        <span><b>{{ post.user.username }}</b></span>
+                        <span class="ms-auto text-muted small">{{ post.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="mb-2">
+                        {{ post.content }}
+                    </div>
+                    {% if post.post_image %}
+                    <div class="mb-2">
+                        <img src="{{ post.post_image.url }}" class="post-img">
+                    </div>
+                    {% endif %}
+                    <div class="d-flex align-items-center text-muted small">
+                    <button class="btn btn-link p-0 like-btn" data-post-id="{{ post.id }}">
+                        <i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>
+                        <span class="like-count">{{ post.total_likes }}</span> 
+                    </button>
+                    <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment</span>
+                </div>
+                </div>
+                {% empty %}
+                <p>No posts from people you follow yet.</p>
+                {% endfor %}
+
+
+
                  {% endblock %}
             </div>
         </div>
@@ -434,6 +470,31 @@ document.addEventListener('click', e => {
     if (!resultsDiv.contains(e.target) && e.target !== input) {
         resultsDiv.innerHTML = '';
     }
+});
+
+document.querySelectorAll('.like-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch("{% url 'like_post' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'post_id=' + postId
+        })
+        .then(res => res.json())
+        .then(data => {
+            this.querySelector('.like-count').textContent = data.total_likes;
+            if(data.liked){
+                this.querySelector('.like-icon').classList.add('text-primary');
+            } else {
+                this.querySelector('.like-icon').classList.remove('text-primary');
+            }
+        })
+        .catch(console.error);
+    });
 });
 </script>
 

@@ -2,16 +2,28 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .forms import ProfileUpdateForm
 from django.http import JsonResponse
-from .models import Post,Profile
+from .models import Post,Profile,Follow
 from .forms import PostForm
-from .models import Follow
+from django.views.decorators.http import require_POST
 
 @login_required
 def home(request):
-    users = User.objects.exclude(id=request.user.id)  # everyone except current user
-    return render(request, "authy/home.html", {"users": users})
+    # Get all users except current user
+    users = User.objects.exclude(id=request.user.id)
+    
+    # Get the users that the current user is following
+    following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
+    
+    # Get posts from users the current user is following
+    posts = Post.objects.filter(user__id__in=following_users).order_by('-created_at')
+    
+    context = {
+        "users": users,
+        "posts": posts,
+    }
+    return render(request, "authy/home.html", context)
+
 
 @login_required
 def logout_confirm(request):
@@ -36,12 +48,15 @@ def profile_view(request, username):
     followers_count = Follow.objects.filter(following=profile_user).count()
     following_count = Follow.objects.filter(follower=profile_user).count()
 
+    posts = profile_user.posts.order_by('-created_at')
+
     context = {
         "profile_user": profile_user,
         "profile": profile,
-        "is_following": is_following,   # 🔥 tells template Follow vs Following
+        "is_following": is_following,   
         "followers_count": followers_count,
         "following_count": following_count,
+        "posts": posts, 
     }
     return render(request, "account/profile.html", context)
 
@@ -112,3 +127,19 @@ def follow_user(request, username):
             follow.delete()
 
     return redirect('profile', username=target_user.username)
+
+
+@login_required
+@require_POST
+def like_post(request):
+    post_id = request.POST.get('post_id')
+    post = Post.objects.get(id=post_id)
+
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        liked = False
+    else:
+        post.likes.add(request.user)
+        liked = True
+
+    return JsonResponse({'liked': liked, 'total_likes': post.total_likes()})

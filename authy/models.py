@@ -9,15 +9,23 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+    
+    
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    content = models.TextField(max_length=500)
-    post_image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='posts')
+    content = models.TextField(blank=True)
+    post_image = models.ImageField(upload_to='posts/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+
+    def total_likes(self):
+        return self.likes.count()
 
     def __str__(self):
-        return f"{self.user.username}: {self.content[:20]}"
+        return f"{self.user.username}'s post"
+    
+
     
 class Follow(models.Model):
     follower = models.ForeignKey(
