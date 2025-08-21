@@ -151,7 +151,7 @@
     <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
       {% csrf_token %}
       <textarea name="content" rows="5" placeholder="What's on your mind?" required></textarea>
-      <input type="file" name="image" style="margin-top:10px;">
+      <input type="file" name="post_image" style="margin-top:10px;">
       <div class="modal-buttons">
         <button type="submit" class="btn-primary">Post</button>
         <button type="button" id="closePostModalBtn" class="btn-secondary">Cancel</button>
@@ -178,9 +178,10 @@
     <!-- Post Content -->
     <div style="padding:0 10px 10px 10px;">
       <p>{{ post.content }}</p>
-      {% if post.image %}
-        <img src="{{ post.image.url }}" style="width:100%; border-radius:8px; margin-top:8px;">
+      {% if post.post_image %}
+          <img src="{{ post.post_image.url }}" style="width:100%; border-radius:8px; margin-top:8px;">
       {% endif %}
+
     </div>
 
     <!-- Post Actions -->

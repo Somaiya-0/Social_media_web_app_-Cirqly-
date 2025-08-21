@@ -3,9 +3,11 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from .models import Post,Profile,Follow,Comment
+from .models import Post,Profile,Follow,Comment,Notification
 from .forms import PostForm
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
 
 @login_required
 def home(request):
@@ -15,12 +17,15 @@ def home(request):
     following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
 
     posts = Post.objects.filter(user__id__in=following_users).order_by('-created_at')
-    
+    unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
     context = {
         "users": users,
         "posts": posts,
     }
     return render(request, "authy/home.html", context)
+
+
+
 
 
 @login_required
@@ -95,19 +100,17 @@ def search_suggest(request):
 
 @login_required
 def create_post(request):
-    if request.method == 'POST':
-        content = request.POST.get('content')   
-        image = request.FILES.get('post_image') 
+    if request.method == "POST":
+        content = request.POST.get("content")
+        post_image = request.FILES.get("post_image")  # get uploaded file
 
-        new_post = Post.objects.create(
-            user=request.user,  
+        post = Post.objects.create(
+            user=request.user,
             content=content,
-            post_image=image
+            post_image=post_image  # save file to model
         )
-        new_post.save()
-
-    return redirect('profile', username=request.user.username)
-
+        return redirect('home')  # or wherever your main page is
+    return redirect('home')
 
 
 
@@ -115,14 +118,26 @@ def create_post(request):
 def follow_user(request, username):
     target_user = get_object_or_404(User, username=username)
 
-    if request.user != target_user:  # prevent following self
+    if request.user != target_user:
         follow, created = Follow.objects.get_or_create(
             follower=request.user,
             following=target_user
         )
-        if not created:
-            # Already following -> unfollow
+        if created:
+            # New follow -> create notification
+            Notification.objects.create(
+                sender=request.user,
+                recipient=target_user,
+                notification_type="follow"
+            )
+        else:
+            # Unfollow -> delete the follow notification
             follow.delete()
+            Notification.objects.filter(
+                sender=request.user,
+                recipient=target_user,
+                notification_type="follow"
+            ).delete()
 
     return redirect('profile', username=target_user.username)
 
@@ -136,11 +151,26 @@ def like_post(request):
     if request.user in post.likes.all():
         post.likes.remove(request.user)
         liked = False
+        # delete notification if unliked
+        Notification.objects.filter(
+            sender=request.user,
+            recipient=post.user,
+            notification_type="like",
+            post=post
+        ).delete()
     else:
         post.likes.add(request.user)
         liked = True
+        if request.user != post.user:
+            Notification.objects.create(
+                sender=request.user,
+                recipient=post.user,
+                notification_type="like",
+                post=post
+            )
 
     return JsonResponse({'liked': liked, 'total_likes': post.total_likes()})
+
 
 @login_required
 @require_POST
@@ -155,6 +185,16 @@ def add_comment(request):
         content=content
     )
 
+    # create notification (only if commenting on someone else's post)
+    if request.user != post.user:
+        Notification.objects.create(
+            sender=request.user,
+            recipient=post.user,
+            notification_type="comment",
+            post=post,
+            comment=comment
+        )
+
     profile_image_url = ''
     if hasattr(request.user, 'profile') and request.user.profile.image:
         profile_image_url = request.user.profile.image.url
@@ -166,3 +206,42 @@ def add_comment(request):
         'user_profile_image': profile_image_url,
         'total_comments': post.comments.count()
     })
+
+@login_required
+@require_POST
+def delete_comment(request):
+    comment_id = request.POST.get('comment_id')
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.user != request.user:
+        return JsonResponse({'success': False, 'error': 'Not allowed.'})
+
+    Notification.objects.filter(comment=comment).delete()
+    comment.delete()
+    return JsonResponse({'success': True, 'comment_id': comment_id})
+
+
+@login_required
+@require_POST
+@csrf_exempt
+def delete_comment(request):
+    if request.method == 'POST':
+        comment_id = request.POST.get('comment_id')
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        if comment.user == request.user:
+            post_id = comment.post.id
+            comment.delete()
+            return JsonResponse({'success': True, 'post_id': post_id})
+        else:
+            return JsonResponse({'success': False, 'error': 'Unauthorized'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
+@login_required
+def notifications_view(request):
+    notifications = request.user.notifications.all()
+    return render(request, "authy/notifications.html", {"notifications": notifications})
+
+

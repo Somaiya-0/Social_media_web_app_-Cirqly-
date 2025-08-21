@@ -1,0 +1,17 @@
+<h2>Notifications</h2>
+<ul>
+  {% for n in notifications %}
+    <li>
+      {% if n.notification_type == "like" %}
+        {{ n.sender.username }} liked your post.
+      {% elif n.notification_type == "comment" %}
+        {{ n.sender.username }} commented on your post: "{{ n.comment.content }}"
+      {% elif n.notification_type == "follow" %}
+        {{ n.sender.username }} started following you.
+      {% endif %}
+      <small>{{ n.created_at|timesince }} ago</small>
+    </li>
+  {% empty %}
+    <li>No notifications yet.</li>
+  {% endfor %}
+</ul>

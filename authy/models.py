@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User  # better to import User directly
+from django.contrib.auth.models import User  
+from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -55,3 +56,25 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} on {self.post.id}"
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('like', 'Like'),
+        ('comment', 'Comment'),
+        ('follow', 'Follow'),
+    )
+    
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_notifications")
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    post = models.ForeignKey("Post", on_delete=models.CASCADE, blank=True, null=True)  # only for like/comment
+    comment = models.ForeignKey("Comment", on_delete=models.CASCADE, blank=True, null=True)  # only for comment
+    created_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.sender} -> {self.recipient} ({self.notification_type})"
