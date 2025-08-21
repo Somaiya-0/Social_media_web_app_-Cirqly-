@@ -7,6 +7,7 @@ urlpatterns = [
     path('search/', views.search_users, name='search_users'),
     path('search/suggest/', views.search_suggest, name='search_suggest'),
     path('create-post/', views.create_post, name='create_post'),
+    path('delete_post/', views.delete_post, name='delete_post'),
     path('follow/<str:username>/', views.follow_user, name='follow_user'),
     path('like/', views.like_post, name='like_post'),
     path('add_comment/', views.add_comment, name='add_comment'),

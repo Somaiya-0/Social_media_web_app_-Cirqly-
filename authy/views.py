@@ -113,6 +113,19 @@ def create_post(request):
     return redirect('home')
 
 
+@login_required
+@csrf_exempt
+def delete_post(request):
+    if request.method == "POST":
+        post_id = request.POST.get("post_id")
+        try:
+            post = Post.objects.get(id=post_id, user=request.user)
+            post.delete()
+            return JsonResponse({"success": True})
+        except Post.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Post not found"})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 
 @login_required
 def follow_user(request, username):

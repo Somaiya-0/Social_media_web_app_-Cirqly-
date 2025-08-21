@@ -165,15 +165,28 @@
 <div style="margin-top:40px;">
   <h3>Posts</h3>
   {% for post in profile_user.posts.all|dictsortreversed:"created_at" %}
-  <div style="border:1px solid #ccc; border-radius:8px; margin-bottom:20px; background:#fff;">
-    <!-- Post Header -->
+  <div id="post-{{ post.id }}" style="border:1px solid #ccc; border-radius:8px; margin-bottom:20px; background:#fff;">
+   <!-- Post Header -->
     <div style="display:flex; align-items:center; padding:10px;">
       <img src="{{ profile.image.url }}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:10px;">
       <div>
         <strong>{{ profile_user.username }}</strong><br>
         <small style="color:#777;">{{ post.created_at|date:"M d, Y H:i" }}</small>
       </div>
+
+      <!-- Post Options (3 dots menu) -->
+      {% if request.user == profile_user %}
+      <div style="margin-left:auto; position:relative;">
+        <button class="post-options-btn" data-post-id="{{ post.id }}" style="border:none; background:none; cursor:pointer; font-size:18px;">⋮</button>
+        <div class="post-options-menu" id="post-options-{{ post.id }}" style="display:none; position:absolute; right:0; background:#fff; border:1px solid #ccc; border-radius:6px; padding:4px; z-index:10;">
+          <button class="delete-post-btn" data-post-id="{{ post.id }}" style="border:none; background:none; cursor:pointer; color:red;">Delete</button>
+        </div>
+      </div>
+      {% endif %}
     </div>
+
+
+
 
     <!-- Post Content -->
     <div style="padding:0 10px 10px 10px;">
@@ -226,6 +239,18 @@
 {% endfor %}
 
 
+
+<!-- Delete Post Confirmation Modal -->
+<div id="deletePostModal" class="modal-overlay">
+  <div class="modal">
+    <h3>Delete Post?</h3>
+    <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+    <div class="modal-buttons" style="justify-content:flex-end;">
+      <button id="confirmDeletePostBtn" class="btn-primary">Delete</button>
+      <button id="cancelDeletePostBtn" class="btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
 
 </div>
  
@@ -350,6 +375,101 @@ document.querySelectorAll('.comment-form').forEach(form => {
         .catch(console.error);
     });
 });
+
+
+// Toggle post options menu
+document.querySelectorAll('.post-options-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        const postId = this.dataset.postId;
+        const menu = document.getElementById('post-options-' + postId);
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+});
+
+// // Delete post via AJAX
+// document.querySelectorAll('.delete-post-btn').forEach(btn => {
+//     btn.addEventListener('click', function(){
+//         const postId = this.dataset.postId;
+//         if(!confirm("Are you sure you want to delete this post?")) return;
+
+//         fetch("{% url 'delete_post' %}", {
+//             method: 'POST',
+//             headers: {
+//                 'X-CSRFToken': '{{ csrf_token }}',
+//                 'Content-Type': 'application/x-www-form-urlencoded',
+//             },
+//             body: 'post_id=' + postId
+//         })
+//         .then(res => res.json())
+//         .then(data => {
+//             if(data.success){
+//                 const postDiv = this.closest('div[style*="border:1px solid"]'); // finds the post container
+//                 if(postDiv) postDiv.remove();
+//             } else {
+//                 alert(data.error || "Failed to delete post");
+//             }
+//         })
+//         .catch(console.error);
+//     });
+// });
+
+
+// post delete
+let postToDelete = null; // store the post id to delete
+const deleteModal = document.getElementById('deletePostModal');
+const confirmDeleteBtn = document.getElementById('confirmDeletePostBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeletePostBtn');
+
+// Open delete modal when clicking delete button
+document.querySelectorAll('.delete-post-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        postToDelete = this.dataset.postId;
+        deleteModal.style.display = 'flex';
+    });
+});
+
+// Cancel deletion
+cancelDeleteBtn.addEventListener('click', () => {
+    deleteModal.style.display = 'none';
+    postToDelete = null;
+});
+
+// Confirm deletion
+confirmDeleteBtn.addEventListener('click', () => {
+    if (!postToDelete) return;
+
+    fetch("{% url 'delete_post' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'post_id=' + postToDelete
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const postDiv = document.getElementById('post-' + postToDelete);
+            if (postDiv) postDiv.remove();
+        }
+        deleteModal.style.display = 'none';
+        postToDelete = null;
+    })
+    .catch(err => console.error(err));
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === deleteModal) {
+        deleteModal.style.display = 'none';
+        postToDelete = null;
+    }
+});
+
+
+
+
 </script>
 
 
