@@ -477,7 +477,31 @@
             box-shadow: 0 0 0 0.3rem rgba(109, 92, 246, 0.2);
             transform: translateY(-2px);
         }
-        
+        .btn-image {
+    background-color: #8b5cf6;
+    color: white;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0.75rem;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.btn-image:hover {
+    background-color: #7a4cd6;
+    transform: scale(1.05);
+}
+
+/* Post button */
+.btn-post {
+    background-color: #7a4cd6;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.btn-post:hover {
+    background-color: #7a4cd6;
+    transform: scale(1.05);
+}
         /* Modal for Delete Confirmation */
         .modal-overlay {
             position: fixed;
@@ -798,23 +822,30 @@
         <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
             <div class="main-content mb-0">
                 {% block content %}
-                <div class="mb-4 post-form-card post-card" style="box-shadow: none; border: 1px solid #e9ecef; animation: none;">
-                    <form id="post-form" enctype="multipart/form-data" method="POST" action="{% url 'create_post' %}">
-                        {% csrf_token %}
-                        <div class="d-flex align-items-center mb-3 gap-3">
-                            <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" class="profile-img">
-                            <input type="text" name="content" class="form-control flex-grow-1" placeholder="What's on your mind?" required>
-                            <input type="file" name="post_image" class="form-control" accept="image/*" id="post-image-input" style="display: none;">
-                            <label for="post-image-input" class="btn btn-cirqly me-2"><i class="bi bi-image"></i></label>
-                            <button type="submit" class="btn btn-cirqly">Post</button>
-                        </div>
-                        <div class="d-flex justify-content-start gap-3 px-1">
-                            <span><i class="bi bi-image" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
-                            <span><i class="bi bi-paperclip" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
-                            <span><i class="bi bi-emoji-smile" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
-                        </div>
-                    </form>
-                </div>
+               <div class="mb-4 post-form-card post-card" style="box-shadow: none; border: 1px solid #e9ecef; padding: 0.75rem 1rem; border-radius: 0.5rem;">
+    <form id="post-form" enctype="multipart/form-data" method="POST" action="{% url 'create_post' %}" class="d-flex align-items-center gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+
+        <!-- Profile image -->
+        <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" 
+             class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+
+        <!-- Text input -->
+        <input type="text" name="content" class="form-control flex-grow-1" placeholder="What's on your mind?" required>
+
+        <!-- Image upload button -->
+        <input type="file" name="post_image" id="post-image-input" accept="image/*" style="display: none;">
+        <label for="post-image-input" class="btn btn-image">
+            <i class="bi bi-image"></i>
+            <span id="file-name" style="font-size: 0.8rem; margin-left: 4px;"></span>
+        </label>
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-post">Post</button>
+    </form>
+</div>
+
                 
                 {% if posts and posts.0.user != user and not following_users %}
                 <div class="discover-header">
@@ -951,6 +982,17 @@
     function getCSRFToken() {
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
     }
+
+    const fileInput = document.getElementById('post-image-input');
+    const fileNameSpan = document.getElementById('file-name');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileNameSpan.textContent = this.files[0].name;
+        } else {
+            fileNameSpan.textContent = '';
+        }
+    });
 
     // Add scroll effect to navbar
     window.addEventListener('scroll', function() {

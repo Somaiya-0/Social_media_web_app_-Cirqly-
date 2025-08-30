@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q  # Add this import
 import json
+from urllib.parse import urlparse
 
 @login_required
 def home(request):
@@ -135,14 +136,23 @@ def create_post(request):
     if request.method == "POST":
         content = request.POST.get("content")
         post_image = request.FILES.get("post_image")  # get uploaded file
+        
 
         post = Post.objects.create(
             user=request.user,
             content=content,
             post_image=post_image  # save file to model
         )
-        # Redirect to the profile page of the logged-in user
-        return redirect('profile', username=request.user.username)
+        # Redirect back to the page the user came from
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            path = urlparse(referer).path  # only the path, ignores domain
+            return redirect(path)
+
+        # fallback to home if HTTP_REFERER missing
+        return redirect('home')
+    
+       
     
     return redirect('profile', username=request.user.username)
 
