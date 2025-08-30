@@ -244,9 +244,9 @@
 <div class="notifications-container">
   <div class="notifications-header">
     <h2>Notifications</h2>
-    <div class="notifications-actions">
+    <!-- <div class="notifications-actions">
       <button class="btn btn-primary">Mark all as read</button>
-    </div>
+    </div> -->
   </div>
 
   <ul class="notifications-list">
@@ -275,14 +275,15 @@
           
           <p class="notification-time">{{ n.created_at|timesince }} ago</p>
           
-          <div class="notification-actions">
-            {% if n.notification_type == "follow" %}
-              <button class="btn btn-primary btn-sm">Follow back</button>
-            {% elif n.notification_type == "comment" or n.notification_type == "like" %}
-              <button class="btn btn-secondary btn-sm">View post</button>
-            {% endif %}
-            <button class="btn btn-secondary btn-sm">Dismiss</button>
-          </div>
+          <!-- <div class="notification-actions">
+  {% if n.notification_type == "follow" %}
+    <button class="btn btn-primary btn-sm follow-back-btn" data-user-id="{{ n.sender.id }}" data-notif-id="{{ n.id }}">Follow back</button>
+  {% elif n.notification_type == "comment" or n.notification_type == "like" %}
+    <button class="btn btn-secondary btn-sm view-post-btn" data-post-id="{{ n.post.id }}">View post</button>
+  {% endif %}
+  <button class="btn btn-secondary btn-sm dismiss-btn" data-notif-id="{{ n.id }}">Dismiss</button>
+</div> -->
+
         </div>
       </li>
     {% empty %}
@@ -295,7 +296,7 @@
   </ul>
 </div>
 
-<script>
+<!-- <script>
   // Mark notifications as read when clicked
   document.querySelectorAll('.notification-item').forEach(item => {
     item.addEventListener('click', function(e) {
@@ -328,6 +329,123 @@
   document.querySelectorAll('.notification-item').forEach((item, index) => {
     item.style.animationDelay = `${index * 0.05}s`;
   });
+  
+  // Dismiss notification
+  document.querySelectorAll('.dismiss-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevent marking as read
+      const notifId = this.dataset.notifId;
+      const notifItem = this.closest('.notification-item');
+      
+      fetch(`/notifications/dismiss/${notifId}/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
+        .then(res => {
+          if(res.ok) notifItem.remove();
+        });
+    });
+  });
+
+  // Follow back
+  document.querySelectorAll('.follow-back-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const userId = this.dataset.userId;
+      const notifItem = this.closest('.notification-item');
+      
+      fetch(`/users/follow/${userId}/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
+        .then(res => {
+          if(res.ok) {
+            this.textContent = 'Following';
+            this.disabled = true;
+          }
+        });
+    });
+  });
+
+  // View post
+  document.querySelectorAll('.view-post-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const postId = this.dataset.postId;
+      window.location.href = `/posts/${postId}/`; // Redirect to post detail page
+    });
+  });
+
+
+</script> -->
+
+<script>
+const csrfToken = '{{ csrf_token }}';
+
+// Use event delegation on the container
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.notifications-list');
+
+  container.addEventListener('click', function(e) {
+    const target = e.target;
+
+    // Dismiss button
+    if (target.classList.contains('dismiss-btn')) {
+      e.stopPropagation();
+      const notifItem = target.closest('.notification-item');
+      const notifId = target.dataset.notifId;
+
+      fetch(`/notifications/dismiss/${notifId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+      }).then(res => {
+        if (res.ok) notifItem.remove();
+      });
+    }
+
+    // Follow back button
+    if (target.classList.contains('follow-back-btn')) {
+      e.stopPropagation();
+      const userId = target.dataset.userId;
+
+      fetch(`/users/follow/${userId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken }
+      }).then(res => {
+        if (res.ok) {
+          target.textContent = 'Following';
+          target.disabled = true;
+        }
+      });
+    }
+
+    // View post button
+    if (target.classList.contains('view-post-btn')) {
+      e.stopPropagation();
+      const postId = target.dataset.postId;
+      window.location.href = `/posts/${postId}/`;
+    }
+  });
+
+  // Mark as read when clicking notification (excluding buttons)
+  container.addEventListener('click', function(e) {
+    const notifItem = e.target.closest('.notification-item');
+    if (!notifItem) return;
+    if (e.target.closest('button')) return;
+
+    notifItem.classList.remove('unread');
+    const badge = notifItem.querySelector('.unread-badge');
+    if (badge) badge.remove();
+
+    // Optional: send AJAX to mark as read
+    // const notifId = notifItem.dataset.notifId;
+    // fetch(`/notifications/mark-as-read/${notifId}/`, {method: 'POST', headers:{'X-CSRFToken': csrfToken}});
+  });
+
+  // Mark all as read
+  document.querySelector('.notifications-actions .btn-primary').addEventListener('click', function() {
+    document.querySelectorAll('.notification-item.unread').forEach(item => {
+      item.classList.remove('unread');
+      const badge = item.querySelector('.unread-badge');
+      if (badge) badge.remove();
+    });
+    fetch('/notifications/mark-all-as-read/', {method: 'POST', headers: {'X-CSRFToken': csrfToken}});
+  });
+});
 </script>
 
 {% endblock %}

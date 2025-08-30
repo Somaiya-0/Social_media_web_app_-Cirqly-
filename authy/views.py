@@ -20,19 +20,24 @@ def home(request):
     
     # If no posts (not following anyone and no own posts), show random posts
     if not posts.exists():
-        # Get random users (excluding yourself)
-        random_users = User.objects.exclude(id=request.user.id).order_by('?')[:5]
+    # Get random users (excluding yourself)
+        random_users = list(User.objects.exclude(id=request.user.id).order_by('?')[:5])
         if random_users:
+            random_user_ids = [u.id for u in random_users]  # convert to list of IDs
             # Get posts from these random users
             posts = Post.objects.filter(
-                user__in=random_users
-            ).order_by('-created_at')[:10]  # Limit to 10 random posts
+                user__in=random_user_ids
+            ).order_by('-created_at')[:10] # Limit to 10 random posts
     
     unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
     
+    following_list = Follow.objects.filter(follower=request.user).select_related('following')[:4]
+
     context = {
         "posts": posts,
         "unread_count": unread_count,
+        "following_users": following_users,   
+        "following_list": following_list,
     }
     return render(request, "authy/home.html", context)
 
@@ -273,5 +278,9 @@ def delete_comment(request):
 
 @login_required
 def notifications_view(request):
-    notifications = request.user.notifications.all()
+    notifications = request.user.notifications.all().order_by('-created_at')
+
+    # Mark unread ones as read
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+
     return render(request, "authy/notifications.html", {"notifications": notifications})

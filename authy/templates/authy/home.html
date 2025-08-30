@@ -712,15 +712,15 @@
   <div class="container-fluid align-items-center py-2">
     <a class="navbar-brand fw-bold" href="#" style="padding-left: 25px;">Cirqly</a>
     
-    <form class="d-none d-lg-flex mx-auto" style="width: 58%;">
-        <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5; width: 100%;">
-            <span class="input-group-text bg-light border-0">
-                <i class="bi bi-search"></i>
-            </span>
-            <input type="text" id="user-search" name="q" class="form-control border-0 bg-light" placeholder="Search users..." autocomplete="off" aria-label="Search">
-            <div id="search-results" class="bg-white rounded" style="display: none;"></div>
-        </div>
-    </form>
+    <form method="GET" action="{% url 'search_users' %}" class="d-none d-lg-flex mx-auto" style="width: 58%;" id="search-form">
+    <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5; width: 100%;">
+        <span class="input-group-text bg-light border-0">
+            <i class="bi bi-search"></i>
+        </span>
+        <input type="text" name="q" id="user-search" class="form-control border-0 bg-light" placeholder="Search users..." autocomplete="off" aria-label="Search">
+        <div id="search-results" class="bg-white rounded" style="display: none; position: absolute; z-index: 1000; width: 100%;"></div>
+    </div>
+</form>
 
     <div class="d-flex align-items-center gap-3 ms-auto">
         <a class="nav-link" href="{% url 'notifications_view' %}">
@@ -752,7 +752,7 @@
                 <div>
                     <div class="mb-4">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><a href="#" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
+                            <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
                             <li class="list-group-item">
                             <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
                                 <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
@@ -769,13 +769,20 @@
                         </li>
                     </ul>
                     <div class="mb-2 fw-semibold">Following</div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=1" class="group-avatar"> Dog Lovers</li>
-                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=2" class="group-avatar"> GamerZzZz</li>
-                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=3" class="group-avatar"> Travel Girls.</li>
-                        <li class="list-group-item"><img src="https://i.pravatar.cc/30?img=4" class="group-avatar"> cat memez</li>
-                    </ul>
-                </div>
+                <ul class="list-group list-group-flush">
+                    {% for follow in following_list %}
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                class="group-avatar me-2" width="30" height="30">
+                            <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                {{ follow.following.username }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">You are not following anyone yet</li>
+                    {% endfor %}
+                </ul>
+
                 <div class="sidebar-bottom mt-4">
                     <form action="{% url 'logout_confirm' %}" method="get">
                         <button type="submit" class="btn btn-logout">
@@ -786,7 +793,8 @@
                 </div>
             </div>
         </div>
-        
+    
+    </div>
         <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
             <div class="main-content mb-0">
                 {% block content %}
