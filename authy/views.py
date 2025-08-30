@@ -7,23 +7,34 @@ from .models import Post,Profile,Follow,Comment,Notification
 from .forms import PostForm
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import Q  # Add this import
+import json
 
 @login_required
 def home(request):
-  
-    users = User.objects.exclude(id=request.user.id)
-
+    # Get users you're following
     following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
-
-    posts = Post.objects.filter(user__id__in=following_users).order_by('-created_at')
+    posts = Post.objects.filter(
+        Q(user__id__in=following_users) | Q(user=request.user)
+    ).order_by('-created_at')
+    
+    # If no posts (not following anyone and no own posts), show random posts
+    if not posts.exists():
+        # Get random users (excluding yourself)
+        random_users = User.objects.exclude(id=request.user.id).order_by('?')[:5]
+        if random_users:
+            # Get posts from these random users
+            posts = Post.objects.filter(
+                user__in=random_users
+            ).order_by('-created_at')[:10]  # Limit to 10 random posts
+    
     unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    
     context = {
-        "users": users,
         "posts": posts,
+        "unread_count": unread_count,
     }
     return render(request, "authy/home.html", context)
-
 
 
 
@@ -42,7 +53,22 @@ def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
     profile = get_object_or_404(Profile, user=profile_user)
 
- 
+    # --- Handle POST updates ---
+    if request.method == "POST" and request.user == profile_user:
+        # Bio update
+        new_bio = request.POST.get("bio")
+        if new_bio is not None:
+            profile.bio = new_bio.strip()
+            profile.save()
+            return redirect("profile", username=profile_user.username)
+
+        # Profile picture update
+        if "image" in request.FILES:
+            profile.image = request.FILES["image"]
+            profile.save()
+            return redirect("profile", username=profile_user.username)
+
+    # --- GET request (normal profile view) ---
     is_following = Follow.objects.filter(
         follower=request.user,
         following=profile_user
@@ -56,12 +82,13 @@ def profile_view(request, username):
     context = {
         "profile_user": profile_user,
         "profile": profile,
-        "is_following": is_following,   
+        "is_following": is_following,
         "followers_count": followers_count,
         "following_count": following_count,
-        "posts": posts, 
+        "posts": posts,
     }
     return render(request, "account/profile.html", context)
+
 
 
 
@@ -109,8 +136,12 @@ def create_post(request):
             content=content,
             post_image=post_image  # save file to model
         )
-        return redirect('home')  # or wherever your main page is
-    return redirect('home')
+        # Redirect to the profile page of the logged-in user
+        return redirect('profile', username=request.user.username)
+    
+    return redirect('profile', username=request.user.username)
+
+
 
 
 @login_required
@@ -213,25 +244,13 @@ def add_comment(request):
         profile_image_url = request.user.profile.image.url
 
     return JsonResponse({
-        'success': True,
-        'username': request.user.username,
-        'content': comment.content,
-        'user_profile_image': profile_image_url,
-        'total_comments': post.comments.count()
-    })
-
-@login_required
-@require_POST
-def delete_comment(request):
-    comment_id = request.POST.get('comment_id')
-    comment = get_object_or_404(Comment, id=comment_id)
-
-    if comment.user != request.user:
-        return JsonResponse({'success': False, 'error': 'Not allowed.'})
-
-    Notification.objects.filter(comment=comment).delete()
-    comment.delete()
-    return JsonResponse({'success': True, 'comment_id': comment_id})
+    'success': True,
+    'comment_id': comment.id,
+    'username': request.user.username,
+    'content': comment.content,
+    'user_profile_image': profile_image_url,
+    'total_comments': post.comments.count()
+})
 
 
 @login_required
@@ -256,5 +275,3 @@ def delete_comment(request):
 def notifications_view(request):
     notifications = request.user.notifications.all()
     return render(request, "authy/notifications.html", {"notifications": notifications})
-
-

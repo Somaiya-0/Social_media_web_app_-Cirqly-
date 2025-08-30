@@ -5,23 +5,60 @@
     <meta charset="UTF-8">
     <title>Cirqly</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
+        :root {
+            --primary-color: #6d3bd7;
+            --primary-hover: #5a2bb9;
+            --secondary-color: #a78bfa;
+            --accent-color: #8b5cf6;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 24px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+        }
+
         body {
             background: #f0f0f0;
             margin-top: 0;
-            padding-top: 70px; /* Height of navbar */
+            padding-top: 70px;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: var(--text-color);
         }
-        .sidebar, .main-content, .rightbar {
-            background: #fff;
-            padding: 2rem 1.5rem;
-            margin-bottom: 1.5rem;
-            min-height: 95vh;
+
+        /* Enhanced Navbar */
+        nav.navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+            background-color: #fff;
+            border-bottom: none;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0;
+            transition: var(--transition);
         }
-        /* FIXED SIDEBARS */
+
+        nav.navbar.scrolled {
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-size: 2rem;
+            font-weight: 800;
+            transition: var(--transition);
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        /* Sidebar enhancements */
         .sidebar, .rightbar {
             border-radius: 20px;
             margin-top: 1.5rem;
@@ -29,119 +66,569 @@
             margin: 0 !important;
             position: fixed;
             top: 70px; 
-            height: calc(100vh - 70px); /* Adjusted height */
+            height: calc(100vh - 70px);
             overflow-y: auto;
             max-height: none;
             z-index: 1020;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
+
+        .sidebar:hover, .rightbar:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
         .sidebar {
             left: 0;
             width: 25%;
             max-width: 320px;
             min-width: 240px;
+            transform: translateX(0);
+            animation: slideInLeft 0.5s ease;
         }
+
         .rightbar {
             right: 0;
             width: 25%;
             max-width: 320px;
             min-width: 240px;
+            transform: translateX(0);
+            animation: slideInRight 0.5s ease;
         }
-        /* MAIN CONTENT IS NOT FIXED, NO MARGIN */
+
+        /* Main content area */
         .main-content {
             padding: 2rem;
             border-radius: 20px;
             margin-top: 1.5rem;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeIn 0.7s ease;
         }
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #8b5cf6 !important;
+
+        .main-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .sidebar .bi,
-        .rightbar .bi,
-        .icon-purple {
-            color: #8b5cf6 !important;
-        }
-        .sidebar .list-group-item {
+
+        /* Enhanced list items */
+        .list-group-item {
             border: none;
             background: transparent;
             font-size: 1.1rem;
+            padding: 0.8rem 1rem;
+            border-radius: 12px !important;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+            cursor: pointer; /* Added for visual feedback */
         }
+
+        .list-group-item:hover {
+            background: #f7f5ff;
+            transform: translateX(5px);
+        }
+
+        /* Enhanced profile images */
         .profile-img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
+            transition: var(--transition);
+            border: 2px solid transparent;
         }
-        .post-img {
-            width: 100%;
-            height: 180px;
+
+        .profile-img:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* POST CARDS - UPDATED TO MATCH PROFILE.HTML STYLE */
+        .post-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeInUp 0.5s ease;
+            transform-origin: center top;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .post-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             object-fit: cover;
-            border-radius: 10px;
+            margin-right: 12px;
+            border: 2px solid var(--secondary-color);
         }
-        .comment-icon, .share-icon, .like-icon {
-            color: #8b5cf6;
+
+        .post-user-info {
+            flex-grow: 1;
         }
-        .group-avatar, .chat-avatar, .contact-avatar {
-            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
-            margin-right: 10px;
+
+        .post-user-info strong {
+            color: var(--primary-color);
         }
-        .event-icon {
-            font-size: 1.3rem;
-            color: #8b5cf6;
+
+        .post-user-info small {
+            color: #777;
         }
-        .form-control:focus {
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+
+        .post-options {
+            position: relative;
         }
+
+        .post-options-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #777;
+            padding: 5px;
+            transition: var(--transition);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-options-btn:hover {
+            background: #f0f0f0;
+            color: var(--primary-color);
+        }
+
+        .post-options-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 35px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            z-index: 10;
+            min-width: 120px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .post-options-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 8px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .post-options-menu button:hover {
+            background: #f7f5ff;
+            color: var(--primary-color);
+        }
+
+        .post-content {
+            padding: 15px;
+        }
+
+        .post-content p {
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            transition: var(--transition);
+        }
+
+        .post-image:hover {
+            transform: scale(1.01);
+        }
+
+        .post-actions {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #555;
+            border-top: 1px solid #eee;
+        }
+
+        .action-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: #f7f5ff;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.active .like-icon {
+            color: #ff3366;
+            animation: heartBeat 0.5s ease-in-out;
+        }
+
+        .comments-section {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .comment-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #eee;
+        }
+
+        .comment-content {
+            background: #f0f2f5;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 90%;
+            flex-grow: 1;
+        }
+
+        .comment-content .fw-semibold {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .comment-form {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .comment-form input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .comment-form input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(109, 59, 215, 0.1);
+        }
+
+        .comment-form button {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .comment-form button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* --- Empty state --- */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        /* Buttons */
         .btn-cirqly {
-            background-color: #8b5cf6;
+            background-color: var(--primary-color);
             color: #fff;
-            border-radius: 8px;
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
         }
+
         .btn-cirqly:hover {
-            background-color: #6d3bd7;
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
         }
+
         .btn-logout {
-            background-color: #8b5cf6;
+            background-color: var(--primary-color);
             color: #fff;
-            border-radius: 8px;
+            border-radius: 10px;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: .5rem;
+            padding: 0.8rem;
+            transition: var(--transition);
         }
+
         .btn-logout:hover {
-            background-color: #6d3bd7;
-        }
-        .sidebar-bottom {
-            margin-top: auto;
-        }
-        nav.navbar {
-            margin-top: 0 !important;
-            border-bottom: none;
-            box-shadow: none;
-           
-        }
-        .navbar .form-control {
-            background: #f5f5f5;
-            font-size: 1rem;
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
         }
 
+        /* Icons */
+        .icon-purple, .sidebar .bi, .rightbar .bi {
+            color: var(--primary-color) !important;
+            transition: var(--transition);
+        }
+
+        .list-group-item:hover .bi {
+            transform: scale(1.2);
+        }
+
+        /* Search results */
         #search-results {
-        position: absolute;
-        top: 45px;
-        left: 0;
-        width: 100%;
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 1050;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            position: absolute;
+            top: 45px;
+            left: 0;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1050;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            animation: fadeInDown 0.3s ease;
+        }
+        
+        #search-results a {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        #search-results a:hover {
+            background: #f7f5ff;
+        }
+        
+        .search-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Form enhancements */
+        .form-control {
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.3rem rgba(109, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Modal for Delete Confirmation */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+        }
+
+        .modal {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .modal p {
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons button {
+            margin: 0 10px;
         }
 
 
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+
+        /* Notification badge */
+        .badge {
+            transition: var(--transition);
+        }
+
+        .nav-link:hover .badge {
+            transform: scale(1.2);
+        }
+
+        /* Discover section for random posts */
+        .discover-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .discover-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 991.98px) {
             .sidebar, .rightbar, .main-content {
                 min-height: unset;
@@ -152,148 +639,120 @@
                 right: unset;
                 margin-left: 0;
                 margin-right: 0;
+                margin-bottom: 1rem;
             }
+            
             .sidebar, .rightbar {
                 padding: 1rem;
-            }
-            .main-content {
-                padding: 1rem;
-            }
-            .navbar .form-control {
-                width: 100%;
+                animation: fadeInUp 0.5s ease;
             }
         }
 
         @media (max-width: 767.98px) {
-            .sidebar, .main-content, .rightbar {
-                margin-bottom: 1rem;
+            .post-image {
+                height: auto; /* Changed to auto for better mobile display */
+                max-width: 100%;
             }
-            .sidebar {
-                min-width: unset;
-                width: 100%;
-            }
-            .main-content, .rightbar {
-                padding: 0.5rem;
-            }
-            .post-img {
-                height: 120px;
+            
+            .main-content {
+                padding: 1rem;
             }
         }
 
-        @media (max-width: 575.98px) {
-            .sidebar, .main-content, .rightbar {
-                padding: 0.5rem;
-            }
-            .logo {
-                font-size: 1.5rem;
-            }
-            .profile-img, .group-avatar, .chat-avatar, .contact-avatar {
-                width: 28px; height: 28px;
-            }
-            .post-img {
-                height: 80px;
-            }
-            .input-group {
-                max-width: 100% !important;
-            }
-        }
-
-        .gap-mobile {
-            gap: 0.5rem;
-        }
-        nav.navbar {
+        /* Floating action button for mobile */
+        .fab {
             position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1030;
-            background-color: #fff;
-            border-bottom: none;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(109, 59, 215, 0.3);
+            z-index: 1000;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+            display: none;
         }
 
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 25px rgba(109, 59, 215, 0.4);
+        }
 
-        .comment-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+        @media (max-width: 767.98px) {
+            .fab {
+                display: flex;
+            }
+        }
 
-.comment-item {
-    gap: 0.5rem;
-}
+        /* Loading animation for AJAX actions */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(109, 59, 215, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
 
-.comment-content {
-    background: #f0f2f5;
-    padding: 6px 10px;
-    border-radius: 18px;
-    max-width: 90%;
-}
-
-.comment-form input[name="content"] {
-    padding: 6px 12px;
-}
-
-.comment-form button {
-    padding: 6px 12px;
-}
-
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-<!-- NAVBAR SECTION -->
-<nav class="navbar navbar-expand-lg bg-white" style="border-bottom: none; box-shadow: none; margin-bottom: 3px;">
-  <div class="container-fluid align-items-center py-2" >
-    <!-- Left: Logo/Brand -->
-    <a class="navbar-brand fw-bold" href="#" style="color: #6d3bd7; font-size: 2rem; padding-left: 25px;">Cirqly</a>
+<nav class="navbar navbar-expand-lg bg-white">
+  <div class="container-fluid align-items-center py-2">
+    <a class="navbar-brand fw-bold" href="#" style="padding-left: 25px;">Cirqly</a>
     
-    <!-- Center: Search bar, hidden on mobile -->
-    <form method="get" action="{% url 'search_users' %}" style=" width: 500px;">
-    <form method="get" action="{% url 'search_users' %}" class="d-none d-lg-flex mx-auto" style="width: 58%;">
-    <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5;  width: 100%;">
-        <span class="input-group-text bg-light border-0">
-            <i class="bi bi-search"></i>
-        </span>
-        <input type="text" id="user-search" name="q" class="form-control border-0 bg-light" placeholder="Search users..." autocomplete="off" aria-label="Search">
-        <!-- Search results dropdown -->
-        <div id="search-results" style="position:absolute; top:40px; width:100%; z-index:1050;"></div>
-    </div>
+    <form class="d-none d-lg-flex mx-auto" style="width: 58%;">
+        <div class="input-group rounded-pill" style="margin-left: 130px; background: #f5f5f5; width: 100%;">
+            <span class="input-group-text bg-light border-0">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="user-search" name="q" class="form-control border-0 bg-light" placeholder="Search users..." autocomplete="off" aria-label="Search">
+            <div id="search-results" class="bg-white rounded" style="display: none;"></div>
+        </div>
     </form>
 
-
-
-    <!-- Right: Icons + User -->
     <div class="d-flex align-items-center gap-3 ms-auto">
-      <li class="nav-item">
-    <a class="nav-link" href="{% url 'notifications_view' %}">
-        <i class="bi bi-bell" style="font-size: 1.2rem; color: #6d3bd7;"></i>
-        {% if unread_count > 0 %}
-            <span class="badge bg-danger">{{ unread_count }}</span>
-        {% endif %}
-    </a>
-</li>
-
-      {% if user.is_authenticated %}
-        <span class="fw-semibold">
-        {{ user.get_full_name|default:user.username }}
-            </span>
+        <a class="nav-link" href="{% url 'notifications_view' %}">
+            <i class="bi bi-bell" style="font-size: 1.2rem; color: #6d3bd7;"></i>
+            {% if unread_count > 0 %}
+                <span class="badge bg-danger">{{ unread_count }}</span>
+            {% endif %}
+        </a>
+        
+        {% if user.is_authenticated %}
+            <span class="fw-semibold">{{ user.get_full_name|default:user.username }}</span>
         {% else %}
             <span class="fw-semibold">Guest</span>
         {% endif %}
-      <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="rounded-circle" style="width:40px; height:40px;" alt="profile">
+        
+        <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" class="rounded-circle profile-img" alt="profile">
     </div>
   </div>
 </nav>
-<!-- MAIN CONTENT STARTS -->
+
+<a href="#" class="fab">
+    <i class="bi bi-plus"></i>
+</a>
+
 <div class="container-fluid">
     <div class="row g-4 flex-wrap">
-        <!-- Sidebar -->
         <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
             <div class="sidebar mb-0 h-100 d-flex flex-column">
                 <div>
-                    <div class="mb-4 ">
+                    <div class="mb-4">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><i class="bi bi-house-door-fill me-2 icon-purple"></i> Home</li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
                             <li class="list-group-item">
                             <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
                                 <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
@@ -304,10 +763,10 @@
                     <div class="mb-2 fw-semibold">Favorites</div>
                     <ul class="list-group list-group-flush mb-4">
                         <li class="list-group-item">
-                        
-                        <a href="{% url 'chatlist' %}">
-                        <i class="bi bi-chat-dots-fill me-2 icon-purple"></i>Message</a>
-                    </li>
+                            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                                <i class="bi bi-chat-dots-fill me-2"></i>Message
+                            </a>
+                        </li>
                     </ul>
                     <div class="mb-2 fw-semibold">Following</div>
                     <ul class="list-group list-group-flush">
@@ -320,200 +779,193 @@
                 <div class="sidebar-bottom mt-4">
                     <form action="{% url 'logout_confirm' %}" method="get">
                         <button type="submit" class="btn btn-logout">
+                            <i class="bi bi-box-arrow-right"></i>
                             <span>Log Out</span>
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-        <!-- Main Content -->
+        
         <div class="col-lg-6 col-md-8 col-12 order-lg-2 order-md-2 order-1">
-            <div class="main-content mb-0" style="margin-bottom: 10px;">
-                 {% block content %}
-                <div class="mb-4">
-                    <div class="p-3 rounded bg-white" style="box-shadow:0 0 0 1px #eee; border-radius:16px;">
-                        <form id="post-form" enctype="multipart/form-data" method="POST" action="{% url 'create_post' %}">
-                            {% csrf_token %}
-                            <div class="d-flex align-items-center mb-3 gap-3">
-                                <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="profile-img">
-                                <input type="text" name="content" class="form-control flex-grow-1" placeholder="What's on your mind?" required>
-                                <input type="file" name="post_image" class="form-control" accept="image/*">
-                                <button type="submit" class="btn btn-cirqly">Post</button>
-                            </div>
-                        </form>
+            <div class="main-content mb-0">
+                {% block content %}
+                <div class="mb-4 post-form-card post-card" style="box-shadow: none; border: 1px solid #e9ecef; animation: none;">
+                    <form id="post-form" enctype="multipart/form-data" method="POST" action="{% url 'create_post' %}">
+                        {% csrf_token %}
+                        <div class="d-flex align-items-center mb-3 gap-3">
+                            <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" class="profile-img">
+                            <input type="text" name="content" class="form-control flex-grow-1" placeholder="What's on your mind?" required>
+                            <input type="file" name="post_image" class="form-control" accept="image/*" id="post-image-input" style="display: none;">
+                            <label for="post-image-input" class="btn btn-cirqly me-2"><i class="bi bi-image"></i></label>
+                            <button type="submit" class="btn btn-cirqly">Post</button>
+                        </div>
                         <div class="d-flex justify-content-start gap-3 px-1">
                             <span><i class="bi bi-image" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
                             <span><i class="bi bi-paperclip" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
                             <span><i class="bi bi-emoji-smile" style="color:#8b5cf6; font-size:1.5rem;"></i></span>
                         </div>
-                    </div>
+                    </form>
                 </div>
-                <!-- Posts -->
-                <div class="mb-4 p-3 bg-light rounded">
-                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
-                        <img src="https://i.pravatar.cc/40?img=6" class="profile-img me-2">
-                        <span><b>Robert Hammond</b> is <b>feeling happy</b></span>
-                        <span class="ms-auto text-muted small">20 min ago</span>
+                
+                {% if posts and posts.0.user != user and not following_users %}
+                <div class="discover-header">
+                    <div class="discover-title">
+                        <i class="bi bi-compass me-2"></i>Discover Posts
                     </div>
-                    <div class="mb-2">
-                        My wife prepared a surprise trip for me. I'm so thankful and I love her very much. Here are some of the best shots from our trip to Sri Lanka. <span class="icon-purple">😍</span>
-                    </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col-6 col-sm-6 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="post-img">
-                        </div>
-                        <div class="col-6 col-sm-6 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="post-img">
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center text-muted small">
-                        <span><i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>Liked 230</span>
-                        <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 6</span>
-                    </div>
+                    <button class="refresh-btn" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
                 </div>
-                <!-- Post 2 -->
-                <div class="mb-4 p-3 bg-light rounded">
-                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
-                        <img src="https://i.pravatar.cc/40?img=7" class="profile-img me-2">
-                        <span><b>Amelie Shiba</b> </span>
-                        <span class="ms-auto text-muted small">Thu, 17 August 10:40 AM</span>
-                    </div>
-                    <div class="mb-2">
-                        I'm selling these clothes. Anyone interested?<br>
-                        Or shall we do a swap evening at mine? <span class="icon-purple">😜</span>
-                    </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1465101178521-cce08b4c1f83?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1513451713350-dee890297c4a?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1465101139161-618b7c6b88a1?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                        <div class="col-4 col-sm-4 col-xs-12">
-                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" class="post-img" style="height:120px;">
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center text-muted small mt-2">
-                        <span><i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>Liked 110</span>
-                        <span class="ms-3"><i class="bi bi-chat-dots comment-icon me-1"></i>Comment 3</span>
-                    </div>
-                </div>
-
-
-                <!-- Posts -->
+                {% endif %}
+                
                 {% for post in posts %}
-                <div class="mb-4 p-3 bg-light rounded">
-                    <div class="d-flex align-items-center mb-2 flex-wrap gap-mobile">
+                <div id="post-{{ post.id }}" class="post-card">
+                    <div class="post-header">
                         {% if post.user.profile.image %}
-                            <img src="{{ post.user.profile.image.url }}" class="profile-img me-2">
+                            <img src="{{ post.user.profile.image.url }}" alt="Profile">
                         {% else %}
-                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" class="profile-img me-2">
+                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile">
                         {% endif %}
-                        <span><b>{{ post.user.username }}</b></span>
-                        <span class="ms-auto text-muted small">{{ post.created_at|date:"M d, Y H:i" }}</span>
-                    </div>
-                    <div class="mb-2">
-                        {{ post.content }}
-                    </div>
-                    {% if post.post_image %}
-                    <div class="mb-2">
-                        <img src="{{ post.post_image.url }}" class="post-img">
-                    </div>
-                    {% endif %}
-                    <div class="d-flex align-items-center text-muted small">
-                    <button class="btn btn-link p-0 like-btn" data-post-id="{{ post.id }}">
-                        <i class="bi bi-hand-thumbs-up-fill like-icon me-1"></i>
-                        <span class="like-count">{{ post.total_likes }}</span> 
-                    </button>
+                        <div class="post-user-info">
+                            <strong>{{ post.user.username }}</strong><br>
+                            <small>{{ post.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
 
-                    <button class="comment-btn" data-post-id="{{ post.id }}">
-                        💬<span class="comment-count">{{ post.comments.count }}</span>
-                    </button>
-                   
+                        {% if request.user == post.user %}
+                        <div class="post-options">
+                            <button class="post-options-btn" data-post-id="{{ post.id }}"><i class="bi bi-three-dots"></i></button>
+                            <div class="post-options-menu" id="post-options-{{ post.id }}">
+                                <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
 
+                    <div class="post-content">
+                        <p>{{ post.content }}</p>
+                        {% if post.post_image %}
+                            <img src="{{ post.post_image.url }}" class="post-image" alt="Post Image">
+                        {% endif %}
+                    </div>
+
+                    <div class="post-actions">
+                        <button class="action-btn like-btn {% if user in post.likes.all %}active{% endif %}" data-post-id="{{ post.id }}">
+                            <span class="like-icon">❤️</span>
+                            <span class="like-count">{{ post.total_likes }}</span>
+                        </button>
+                        <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+                            <span>💬</span>
+                            <span class="comment-count">{{ post.comments.count }}</span>
+                        </button>
+                        
+                        {% if posts and posts.0.user != user and not following_users and post.user != user %}
+                        <form method="post" action="{% url 'follow_user' post.user.username %}" class="ms-auto">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-cirqly btn-sm">
+                                <i class="bi bi-person-plus"></i> Follow
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                     
-                    </div>
-                    {% empty %}
-                    <p>No posts from people you follow yet.</p>
-                    {% endfor %}
-                
-
-                    {% for post in posts %}
-                
-
-                    <!-- Full comments section (hidden initially) -->
-                    <div class="comments-section" id="comments-{{ post.id }}" style="display:none; margin-top:8px;">
-                        <div class="comments-list">
-                            {% for comment in post.comments.all %}
-                            <div id="comment-{{ comment.id }}" class="d-flex align-items-start mb-2 comment-item">
-    <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar me-2">
-    <div class="comment-content bg-light rounded px-2 py-1 position-relative">
-        <div class="fw-semibold">{{ comment.user.username }}</div>
-        <div>{{ comment.content }}</div>
-        <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-        {% if comment.user == user %}
-        <div class="dropdown position-absolute top-0 end-0">
-            <a href="#" class="text-muted text-decoration-none" data-bs-toggle="dropdown">
-                <i class="bi bi-three-dots"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item delete-comment-btn" href="#" data-comment-id="{{ comment.id }}">Delete</a></li>
-            </ul>
+                    <div class="comments-section" id="comments-{{ post.id }}">
+    <div class="comments-list">
+        {% for comment in post.comments.all %}
+        <div class="comment-item">
+            <img src="{% if comment.user.profile.image %}{{ comment.user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" class="comment-avatar" alt="Commenter Avatar">
+            <div class="comment-content">
+                <span class="fw-semibold">{{ comment.user.username }}</span>
+                <div>{{ comment.content }}</div>
+                <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+            </div>
+            {% if comment.user == user %}
+            <button type="button" class="delete-comment-btn" data-comment-id="{{ comment.id }}" data-post-id="{{ post.id }}">
+                🗑️
+            </button>
+            {% endif %}
         </div>
-        {% endif %}
+        {% endfor %}
     </div>
+
+    <form class="comment-form" data-post-id="{{ post.id }}">
+        {% csrf_token %}
+        <img src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png{% endif %}" class="comment-avatar" alt="Your Avatar">
+        <input type="text" name="content" placeholder="Write a comment..." required>
+        <button type="submit">Post</button>
+    </form>
 </div>
 
-                            {% endfor %}
-                        </div>
-
-                        <!-- Add comment form -->
-                        <form class="comment-form d-flex align-items-center mt-2" data-post-id="{{ post.id }}">
-                            {% csrf_token %}
-                            <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar me-2">
-                            <input type="text" name="content" class="form-control rounded-pill me-2" placeholder="Write a comment..." required>
-                            <button type="submit" class="btn btn-cirqly btn-sm">Post</button>
-                        </form>
-                    </div>
-
-                    
-                    {% endfor %}
                 </div>
-                 {% endblock %}
+                {% empty %}
+                <div class="empty-state">
+                    <div>📝</div>
+                    <p>No posts yet. Follow people to see their posts or create your own!</p>
+                    <a href="{% url 'search_users' %}" class="btn btn-cirqly mt-2">
+                        <i class="bi bi-search me-2"></i>Discover Users
+                    </a>
+                </div>
+                {% endfor %}
+                {% endblock %}
             </div>
         </div>
-        <!-- Rightbar -->
+        
         <div class="col-lg-3 col-md-12 col-12 order-lg-3 order-md-3 order-3">
             <div class="rightbar mb-0 h-100">
                 <div>
-                    <div class="fw-bold mb-2">Chats</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=15" class="contact-avatar"> Mark Larsen</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=16" class="contact-avatar"> Ethan Reynolds</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=17" class="contact-avatar"> Ava Thompson</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=18" class="contact-avatar"> Haarper Mitchell</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=19" class="contact-avatar"> Pablo Morandi</div>
-                    <div class="mb-1 d-flex align-items-center"><img src="https://i.pravatar.cc/30?img=20" class="contact-avatar"> Isabel Hughes</div>
+                    <div class="fw-bold mb-3">Chats</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=15" class="contact-avatar"> Mark Larsen</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=16" class="contact-avatar"> Ethan Reynolds</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=17" class="contact-avatar"> Ava Thompson</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=18" class="contact-avatar"> Haarper Mitchell</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=19" class="contact-avatar"> Pablo Morandi</div>
+                    <div class="mb-2 d-flex align-items-center p-2 rounded hover-effect"><img src="https://i.pravatar.cc/30?img=20" class="contact-avatar"> Isabel Hughes</div>
                 </div>
             </div>
-        
+        </div>
     </div>
 </div>
 
+<div id="deletePostModal" class="modal-overlay">
+    <div class="modal">
+        <h3>Delete Post?</h3>
+        <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+        <div class="modal-buttons">
+            <button id="confirmDeletePostBtn" class="btn btn-primary">Delete</button>
+            <button id="cancelDeletePostBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const input = document.getElementById('user-search');
+    // CSRF token function
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // Add scroll effect to navbar
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 10) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Enhanced search functionality
+   const input = document.getElementById('user-search');
 const resultsDiv = document.getElementById('search-results');
 let timer = null;
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+input.addEventListener('focus', () => {
+    resultsDiv.style.display = 'block';
+});
 
 input.addEventListener('input', () => {
     clearTimeout(timer);
@@ -523,44 +975,109 @@ input.addEventListener('input', () => {
         return;
     }
 
+    // Loading indicator
+    resultsDiv.innerHTML = '<div class="p-2 text-center">Loading...</div>';
+
     timer = setTimeout(() => {
-        fetch("{% url 'search_suggest' %}?q=" + encodeURIComponent(q), {
-            headers: {'X-Requested-With': 'XMLHttpRequest'}
-        })
-        .then(r => r.json())
-        .then(data => {
-            resultsDiv.innerHTML = '';
-            if (data.users.length) {
-                data.users.forEach(u => {
-                    const a = document.createElement('a');
-                    a.href = u.profile_url;
-                    a.className = "d-flex align-items-center p-2 bg-white mb-1 rounded text-decoration-none shadow-sm";
-                    a.innerHTML = `
-                        <img src="${u.profile_image}" class="profile-img me-2">
-                        <div>
-                            <div class="fw-semibold text-dark">${u.username}</div>
-                            <small class="text-muted">${u.full_name || ''}</small>
-                        </div>
-                    `;
-                    resultsDiv.appendChild(a);
-                });
-            } else {
-                resultsDiv.innerHTML = '<div class="p-2 bg-white rounded shadow-sm">No users found</div>';
-            }
-        })
-        .catch(console.error);
-    }, 250);
+        fetch(`/authy/search/suggest/?q=${encodeURIComponent(q)}`)
+            .then(res => res.json())
+            .then(data => {
+                resultsDiv.innerHTML = '';
+                if (data.users.length > 0) {
+                    data.users.forEach(user => {
+                        const a = document.createElement('a');
+                        a.href = user.profile_url;
+                        a.classList.add('d-flex', 'align-items-center', 'py-2', 'px-3');
+                        a.innerHTML = `
+                            <img src="${user.profile_image}" class="search-avatar me-2" alt="profile">
+                            <div>
+                                <div class="fw-semibold">${user.full_name}</div>
+                                <small class="text-muted">@${user.username}</small>
+                            </div>
+                        `;
+                        resultsDiv.appendChild(a);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<div class="p-2 text-center text-muted">No users found</div>';
+                }
+            })
+            .catch(err => {
+                console.error('Search error:', err);
+                resultsDiv.innerHTML = '<div class="p-2 text-center text-danger">Failed to load</div>';
+            });
+    }, 300); // debounce 300ms
 });
 
 document.addEventListener('click', e => {
-    if (!resultsDiv.contains(e.target) && e.target !== input) {
-        resultsDiv.innerHTML = '';
+    if (!e.target.closest('#user-search') && !e.target.closest('#search-results')) {
+        resultsDiv.style.display = 'none';
     }
 });
 
-document.querySelectorAll('.like-btn').forEach(button => {
+
+        // Show loading animation
+        resultsDiv.innerHTML = '<div class="p-2 bg-white rounded text-center"><div class="loading"></div></div>';
+
+        timer = setTimeout(() => {
+            fetch("{% url 'search_suggest' %}?q=" + encodeURIComponent(q))
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(user => {
+                            const resultItem = document.createElement('a');
+                            resultItem.href = `{% url 'profile' 'USER_PLACEHOLDER' %}`.replace('USER_PLACEHOLDER', user.username);
+                            resultItem.classList.add('d-flex', 'align-items-center', 'py-2', 'px-3');
+                            resultItem.innerHTML = `
+                                <img src="${user.profile_image}" class="search-avatar me-2" alt="profile">
+                                <div>
+                                    <div class="fw-semibold">${user.full_name}</div>
+                                    <small class="text-muted">@${user.username}</small>
+                                </div>
+                            `;
+                            resultsDiv.appendChild(resultItem);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = '<div class="p-3 text-muted text-center">No users found.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                    resultsDiv.innerHTML = '<div class="p-3 text-danger text-center">Failed to load search results.</div>';
+                });
+        }, 300);
+    
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#user-search') && !event.target.closest('#search-results')) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+
+    // Handle post options dropdown
+    document.addEventListener('click', (event) => {
+        const target = event.target.closest('.post-options-btn');
+        if (target) {
+            const postId = target.dataset.postId;
+            const menu = document.getElementById(`post-options-${postId}`);
+            document.querySelectorAll('.post-options-menu').forEach(m => {
+                if (m.id !== `post-options-${postId}`) {
+                    m.style.display = 'none';
+                }
+            });
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        } else if (!event.target.closest('.post-options-menu')) {
+            document.querySelectorAll('.post-options-menu').forEach(m => m.style.display = 'none');
+        }
+    });
+
+    // Handle like button clicks (using event delegation)
+  // --- Like button JS ---
+  document.querySelectorAll('.like-btn').forEach(button => {
     button.addEventListener('click', function() {
         const postId = this.dataset.postId;
+        this.classList.add('animating');
+        
         fetch("{% url 'like_post' %}", {
             method: 'POST',
             headers: {
@@ -573,112 +1090,185 @@ document.querySelectorAll('.like-btn').forEach(button => {
         .then(res => res.json())
         .then(data => {
             this.querySelector('.like-count').textContent = data.total_likes;
+            
             if(data.liked){
-                this.querySelector('.like-icon').classList.add('text-primary');
+                this.classList.add('active');
+                // Create a heart animation
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'absolute';
+                heart.style.fontSize = '20px';
+                heart.style.opacity = '0';
+                heart.style.transform = 'translateY(0)';
+                heart.style.transition = 'all 0.8s ease-out';
+                this.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.style.opacity = '1';
+                    heart.style.transform = 'translateY(-30px)';
+                }, 10);
+                
+                setTimeout(() => {
+                    heart.remove();
+                    this.classList.remove('animating');
+                }, 800);
             } else {
-                this.querySelector('.like-icon').classList.remove('text-primary');
+                this.classList.remove('active');
+                this.classList.remove('animating');
             }
         })
         .catch(console.error);
     });
-});
-
-
-document.querySelectorAll('.comment-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const postId = this.dataset.postId;
-        const commentsDiv = document.getElementById('comments-' + postId);
-        commentsDiv.style.display = commentsDiv.style.display === 'none' ? 'block' : 'none';
-    });
-});
-
-document.querySelectorAll('.comment-form').forEach(form => {
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
-        const postId = this.dataset.postId;
-        const input = this.querySelector('input[name="content"]');
-        const content = input.value.trim();
-        if(!content) return;
-
-        fetch("{% url 'add_comment' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'post_id=' + postId + '&content=' + encodeURIComponent(content)
-        })
-        .then(res => res.json())
-        .then(data => {
-            const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
-              // Create new comment div
-    const commentDiv = document.createElement('div');
-    commentDiv.className = 'd-flex align-items-start mb-2 comment-item';
-    
-    commentDiv.innerHTML = `
-        <img src="${data.user_profile_image}" class="comment-avatar me-2">
-        <div class="comment-content bg-light rounded px-2 py-1">
-            <div class="fw-semibold">${data.username}</div>
-            <div>${data.content}</div>
-            <small class="text-muted">just now</small>
-        </div>
-    `;
-
-      commentsList.appendChild(commentDiv);
-    input.value = '';
-
-            // Update preview link
-            const previewLink = document.querySelector('.view-comments-link[data-post-id="' + postId + '"]');
-            if(previewLink){
-                previewLink.textContent = `View all ${data.total_comments} comment${data.total_comments > 1 ? 's' : ''}`;
-            }
-        })
-       .catch(console.error);
   });
- });
 
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('delete-comment-btn')) {
-        e.preventDefault();
-        const commentId = e.target.dataset.commentId;
-
-        fetch("{% url 'delete_comment' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'comment_id=' + commentId
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success){
-            // Remove the comment div from DOM
-            const commentDiv = document.getElementById('comment-' + commentId);
-            if(commentDiv) commentDiv.remove();
-
-            // Update comment count
-            const postId = data.post_id; // send post_id from backend
-            const commentCountSpan = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
-            if(commentCountSpan){
-                let count = parseInt(commentCountSpan.textContent);
-                commentCountSpan.textContent = count > 0 ? count - 1 : 0;
-                    }
-            }
-
-        })
-        .catch(console.error);
+   // Handle comment button clicks (toggle comment section)
+document.addEventListener('click', (event) => {
+    const commentBtn = event.target.closest('.comment-btn');
+    if (commentBtn) {
+        event.preventDefault();
+        const postId = commentBtn.dataset.postId;
+        const commentsSection = document.getElementById(`comments-${postId}`);
+        commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
     }
 });
 
+// Handle comment form submission
+document.addEventListener('submit', async (event) => {
+    const commentForm = event.target.closest('.comment-form');
+    if (commentForm) {
+        event.preventDefault();
+        const postId = commentForm.dataset.postId;
+        const contentInput = commentForm.querySelector('input[name="content"]');
+        const content = contentInput.value.trim();
+        if (!content) return;
 
+        try {
+            const response = await fetch("{% url 'add_comment' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `post_id=${postId}&content=${encodeURIComponent(content)}`
+            });
+
+            if (response.ok) {
+                const newComment = await response.json();
+                const commentsList = document.querySelector(`#comments-${postId} .comments-list`);
+                const commentCountSpan = document.querySelector(`#post-${postId} .comment-count`);
+
+                const commentHtml = `
+                    <div class="comment-item">
+                        <img src="${newComment.user_profile_image}" class="comment-avatar" alt="Commenter Avatar">
+                        <div class="comment-content">
+                            <span class="fw-semibold">${newComment.username}</span>
+                            <div>${newComment.content}</div>
+                            <small class="text-muted">Just now</small>
+                        </div>
+                    </div>
+                `;
+                commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+                contentInput.value = '';
+                commentCountSpan.textContent = parseInt(commentCountSpan.textContent) + 1;
+            }
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        }
+    }
+});
+
+// Handle comment delete button clicks
+document.addEventListener('click', async (event) => {
+    const deleteBtn = event.target.closest('.delete-comment-btn');
+    if (deleteBtn) {
+        event.preventDefault();
+        const commentId = deleteBtn.dataset.commentId;
+        const postId = deleteBtn.dataset.postId; // optional, for updating count
+
+        if (!commentId) return;
+
+        if (!confirm("Are you sure you want to delete this comment?")) return;
+
+        try {
+            const response = await fetch("{% url 'delete_comment' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `comment_id=${commentId}`
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    // Remove comment from DOM
+                    const commentItem = deleteBtn.closest('.comment-item');
+                    if (commentItem) commentItem.remove();
+
+                    // Update comment count
+                    if (postId) {
+                        const commentCountSpan = document.querySelector(`#post-${postId} .comment-count`);
+                        if (commentCountSpan) {
+                            commentCountSpan.textContent = parseInt(commentCountSpan.textContent) - 1;
+                        }
+                    }
+                } else {
+                    alert(data.error || "Failed to delete comment.");
+                }
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    }
+});
+
+    // Handle delete post logic
+    let postToDeleteId = null;
+    const deleteModal = document.getElementById('deletePostModal');
+    const confirmDeleteBtn = document.getElementById('confirmDeletePostBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeletePostBtn');
+
+    document.addEventListener('click', (event) => {
+        const deleteBtn = event.target.closest('.delete-post-btn');
+        if (deleteBtn) {
+            event.preventDefault();
+            postToDeleteId = deleteBtn.dataset.postId;
+            deleteModal.style.display = 'flex';
+        }
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+        postToDeleteId = null;
+    });
+
+    confirmDeleteBtn.addEventListener('click', async () => {
+        if (postToDeleteId) {
+            try {
+                const response = await fetch(`/posts/${postToDeleteId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json'
+                    },
+                });
+
+                if (response.ok) {
+                    document.getElementById(`post-${postToDeleteId}`).remove();
+                    deleteModal.style.display = 'none';
+                } else {
+                    console.error('Failed to delete post:', response.statusText);
+                    alert('Failed to delete post.');
+                }
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                postToDeleteId = null;
+            }
+        }
+    });
 </script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

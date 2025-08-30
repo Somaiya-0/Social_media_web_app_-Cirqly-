@@ -4,7 +4,7 @@
 {% block content %}
 
 <style>
-  /* --- Modal styles --- */
+  
   .modal-overlay {
     position: fixed;
     z-index: 1000;
@@ -67,6 +67,8 @@
 
 
 </style>
+
+
 
 <div style="border: solid; border-color: #a78bfa; max-width: 800px; margin: 40px auto; padding: 20px; background-color: rgb(248, 243, 243); color: #5c5c5d; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start;">
 
@@ -386,32 +388,6 @@ document.querySelectorAll('.post-options-btn').forEach(btn => {
     });
 });
 
-// // Delete post via AJAX
-// document.querySelectorAll('.delete-post-btn').forEach(btn => {
-//     btn.addEventListener('click', function(){
-//         const postId = this.dataset.postId;
-//         if(!confirm("Are you sure you want to delete this post?")) return;
-
-//         fetch("{% url 'delete_post' %}", {
-//             method: 'POST',
-//             headers: {
-//                 'X-CSRFToken': '{{ csrf_token }}',
-//                 'Content-Type': 'application/x-www-form-urlencoded',
-//             },
-//             body: 'post_id=' + postId
-//         })
-//         .then(res => res.json())
-//         .then(data => {
-//             if(data.success){
-//                 const postDiv = this.closest('div[style*="border:1px solid"]'); // finds the post container
-//                 if(postDiv) postDiv.remove();
-//             } else {
-//                 alert(data.error || "Failed to delete post");
-//             }
-//         })
-//         .catch(console.error);
-//     });
-// });
 
 
 // post delete
@@ -468,9 +444,6 @@ window.addEventListener('click', (e) => {
 });
 
 
-
-
 </script>
-
 
 {% endblock %}

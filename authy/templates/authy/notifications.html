@@ -1,17 +1,333 @@
-<h2>Notifications</h2>
-<ul>
-  {% for n in notifications %}
-    <li>
-      {% if n.notification_type == "like" %}
-        {{ n.sender.username }} liked your post.
-      {% elif n.notification_type == "comment" %}
-        {{ n.sender.username }} commented on your post: "{{ n.comment.content }}"
-      {% elif n.notification_type == "follow" %}
-        {{ n.sender.username }} started following you.
-      {% endif %}
-      <small>{{ n.created_at|timesince }} ago</small>
-    </li>
-  {% empty %}
-    <li>No notifications yet.</li>
-  {% endfor %}
-</ul>
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  /* --- Global Styles & Variables --- */
+  :root {
+    --primary-color: #6d3bd7;
+    --primary-hover: #362fc9;
+    --secondary-color: #a78bfa;
+    --text-color: #5c5c5d;
+    --light-bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-radius: 12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+
+  body {
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+  }
+
+  /* --- Notifications Container --- */
+  .notifications-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 25px;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    animation: fadeInUp 0.6s ease;
+  }
+
+  .notifications-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+
+  .notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--secondary-color);
+  }
+
+  .notifications-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+
+  .notifications-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* --- Notification Items --- */
+  .notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: var(--border-radius);
+    background: #faf9ff;
+    transition: var(--transition);
+    position: relative;
+    border-left: 4px solid transparent;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .notification-item:hover {
+    background: #f5f3ff;
+    transform: translateX(5px);
+    box-shadow: var(--shadow);
+  }
+
+  .notification-item.unread {
+    background: #f0edff;
+    border-left-color: var(--primary-color);
+  }
+
+  .notification-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid var(--secondary-color);
+    flex-shrink: 0;
+  }
+
+  .notification-content {
+    flex-grow: 1;
+  }
+
+  .notification-text {
+    margin: 0 0 5px 0;
+    line-height: 1.5;
+  }
+
+  .notification-text strong {
+    color: var(--primary-color);
+  }
+
+  .notification-time {
+    font-size: 0.85rem;
+    color: #777;
+    margin: 0;
+  }
+
+  .notification-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .notification-post-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f7ff;
+    border-radius: 8px;
+    font-style: italic;
+    border-left: 2px solid var(--secondary-color);
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(109, 59, 215, 0.3);
+  }
+
+  .btn-secondary {
+    background-color: #e0e0e0;
+    color: #555;
+  }
+
+  .btn-secondary:hover {
+    background-color: #d0d0d0;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* --- Empty state --- */
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #777;
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #ddd;
+  }
+
+  /* --- Animations --- */
+  @keyframes fadeIn { 
+    from { opacity: 0; } 
+    to { opacity: 1; } 
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* --- Badge for unread notifications --- */
+  .unread-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-left: 8px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* --- Responsive adjustments --- */
+  @media (max-width: 600px) {
+    .notifications-container {
+      margin: 20px auto;
+      padding: 15px;
+    }
+    
+    .notification-item {
+      flex-direction: column;
+    }
+    
+    .notification-avatar {
+      margin-bottom: 10px;
+    }
+    
+    .notifications-actions {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<div class="notifications-container">
+  <div class="notifications-header">
+    <h2>Notifications</h2>
+    <div class="notifications-actions">
+      <button class="btn btn-primary">Mark all as read</button>
+    </div>
+  </div>
+
+  <ul class="notifications-list">
+    {% for n in notifications %}
+      <li class="notification-item {% if not n.is_read %}unread{% endif %}">
+        <img src="{{ n.sender.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" 
+             alt="{{ n.sender.username }}" class="notification-avatar">
+        
+        <div class="notification-content">
+          <p class="notification-text">
+            {% if n.notification_type == "like" %}
+              <strong>{{ n.sender.username }}</strong> liked your post.
+            {% elif n.notification_type == "comment" %}
+              <strong>{{ n.sender.username }}</strong> commented on your post: "{{ n.comment.content }}"
+            {% elif n.notification_type == "follow" %}
+              <strong>{{ n.sender.username }}</strong> started following you.
+            {% endif %}
+            {% if not n.is_read %}<span class="unread-badge"></span>{% endif %}
+          </p>
+          
+          {% if n.notification_type == "comment" and n.post %}
+          <div class="notification-post-preview">
+            "{{ n.post.content|truncatewords:10 }}"
+          </div>
+          {% endif %}
+          
+          <p class="notification-time">{{ n.created_at|timesince }} ago</p>
+          
+          <div class="notification-actions">
+            {% if n.notification_type == "follow" %}
+              <button class="btn btn-primary btn-sm">Follow back</button>
+            {% elif n.notification_type == "comment" or n.notification_type == "like" %}
+              <button class="btn btn-secondary btn-sm">View post</button>
+            {% endif %}
+            <button class="btn btn-secondary btn-sm">Dismiss</button>
+          </div>
+        </div>
+      </li>
+    {% empty %}
+      <div class="empty-state">
+        <div>🔔</div>
+        <p>No notifications yet.</p>
+        <p>When you get notifications, they'll show up here.</p>
+      </div>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  // Mark notifications as read when clicked
+  document.querySelectorAll('.notification-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Don't trigger if clicking on a button
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+      
+      this.classList.remove('unread');
+      const badge = this.querySelector('.unread-badge');
+      if (badge) badge.remove();
+      
+      // In a real app, you would send an AJAX request to mark as read
+      // const notificationId = this.dataset.notificationId;
+      // fetch(`/notifications/mark-as-read/${notificationId}/`, {method: 'POST'});
+    });
+  });
+
+  // Mark all as read button
+  document.querySelector('.notifications-actions .btn-primary').addEventListener('click', function() {
+    document.querySelectorAll('.notification-item.unread').forEach(item => {
+      item.classList.remove('unread');
+      const badge = item.querySelector('.unread-badge');
+      if (badge) badge.remove();
+    });
+    
+    // In a real app, you would send an AJAX request to mark all as read
+    // fetch('/notifications/mark-all-as-read/', {method: 'POST'});
+  });
+
+  // Add animation to notification items
+  document.querySelectorAll('.notification-item').forEach((item, index) => {
+    item.style.animationDelay = `${index * 0.05}s`;
+  });
+</script>
+
+{% endblock %}

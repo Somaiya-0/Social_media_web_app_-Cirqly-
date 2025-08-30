@@ -1,3 +1,5 @@
+<p>DEBUG: room_name = {{ room_name }}</p>
+
 <h2>Chat with {{ other_user.username }}</h2>
 
 <div id="chat-log" class="chat-log">
@@ -15,27 +17,27 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const roomName = "{{ room_name }}";
+    const roomName = "{{ room_name }}";  // ✅ use stable 2-user room_name
+    console.log("Connecting to room:", roomName);
     const chatLog = document.getElementById('chat-log');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
-    
-    // Establish WebSocket connection
-    const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
-    );
+
+    // Determine ws or wss based on protocol
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${roomName}/`);
 
     // Handle incoming messages
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
-        messageElement.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
+        const username = data.username === "{{ request.user.username }}" ? "You" : data.username;
+        messageElement.innerHTML = `<b>${username}:</b> ${escapeHtml(data.message)}`;
         chatLog.appendChild(messageElement);
-        chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to bottom
+        chatLog.scrollTop = chatLog.scrollHeight;
     };
 
-    // Handle connection errors
     chatSocket.onerror = function(error) {
         console.error('WebSocket Error:', error);
     };
@@ -44,21 +46,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Chat socket closed unexpectedly');
     };
 
-    // Handle form submission
     chatForm.onsubmit = function(e) {
         e.preventDefault();
         const message = chatInput.value.trim();
-        
         if(message !== "" && chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
+            chatSocket.send(JSON.stringify({ 'message': message }));
             chatInput.value = '';
             chatInput.focus();
         }
     };
 
-    // Basic HTML escaping for security
     function escapeHtml(unsafe) {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -69,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 
 <style>
     .chat-log {
