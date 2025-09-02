@@ -32,6 +32,14 @@
 
   .chat-room { flex: 1; display: flex; flex-direction: column; }
   .chat-room-header { padding: 14px 20px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 1.1rem; background: #faf9ff; color: var(--primary-color); }
+  
+  .chat-search {padding: 10px;border-bottom: 1px solid #eee;background: #fff;}
+
+  .chat-search input {width: 100%;padding: 8px 12px;border: 1px solid #ddd;border-radius: 20px;font-size: 0.9rem;outline: none;color: #333;}
+
+  .chat-search input:focus {border-color: var(--primary-color);box-shadow: 0 0 0 2px rgba(109,59,215,0.15);}
+
+
   .chat-log { flex: 1; padding: 20px; overflow-y: auto; background: var(--light-bg); display: flex; flex-direction: column; gap: 12px; }
   .message { max-width: 65%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; }
   .message.me { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
@@ -47,6 +55,10 @@
   <!-- Sidebar -->
   <div class="chat-sidebar">
     <div class="chat-header">Chats</div>
+
+    <div class="chat-search">
+      <input type="text" id="chat-search-input" placeholder="Search users...">
+    </div>
     <ul class="chat-list">
       {% for user in users %}
         <li>
@@ -54,7 +66,11 @@
             <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
             <div class="chat-info">
               <div class="username">{{ user.username }}</div>
-              <div class="last-message">Loading...</div>
+              <div class="last-message">
+                {{ user.last_message }}
+              </div>
+
+
             </div>
           </div>
         </li>
@@ -162,5 +178,15 @@ document.addEventListener('DOMContentLoaded', function() {
     chatInput.focus();
   });
 });
+
+const searchInput = document.getElementById("chat-search-input");
+searchInput.addEventListener("keyup", function () {
+  const filter = searchInput.value.toLowerCase();
+  document.querySelectorAll(".chat-list li").forEach(li => {
+    const username = li.querySelector(".username").textContent.toLowerCase();
+    li.style.display = username.includes(filter) ? "" : "none";
+  });
+});
+
 </script>
 {% endblock %}
