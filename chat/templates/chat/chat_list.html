@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
- :root {
+        :root {
             --primary-color: #6d3bd7;
             --primary-hover: #5a2bb9;
             --secondary-color: #a78bfa;
@@ -20,76 +20,84 @@
             --shadow: 0 8px 24px rgba(0,0,0,0.1);
             --transition: all 0.3s ease;
             --border-radius: 12px;
-      }
+        }
 
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    background: var(--light-bg);
-    color: var(--text-color);
-}
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background: var(--light-bg);
+            color: var(--text-color);
+            padding-top: 0;
+        }
 
-/* Sidebar Cirqly logo header like homepage navbar */
-.sidebar-header {
-    width: 100%;
-    background-color: #fff;                    /* same as navbar */
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* same shadow */
-    padding: 1.3rem 2rem;                      /* same padding as navbar */
-    position: sticky;
-    top: 0;
-    left: 0;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+        /* --- Global Sidebar Styles (from notifications) --- */
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        .row.g-4 {
+            margin-left: 0;
+            margin-right: 0;
+        }
 
-/* Logo inside header */
-.sidebar-header .sidebar-brand {
-    color: var(--primary-color) !important;
-    font-size: 2rem;
-    font-weight: 800;
-    text-decoration: none !important;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
+        /* Sidebar header with Cirqly logo */
+        .sidebar-header {
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.3rem 2rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-.sidebar-header .sidebar-brand:hover {
-    transform: scale(1.05);
-    color: var(--primary-hover) !important;
-}
+        .sidebar-header .sidebar-logo {
+            color: var(--primary-color) !important;
+            font-size: 2rem;
+            font-weight: 700;
+            text-decoration: none !important;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
 
+        .sidebar-header .sidebar-logo:hover {
+            transform: scale(1.05);
+            color: var(--primary-hover) !important;
+        }
 
-/* Main sidebar */
-.sidebar {
-    position: fixed;
-    top: 0; /* flush with top */
-    left: 0;
-    width: 25%;
-    max-width: 320px;
-    min-width: 240px;
-    height: 100vh;
-    
-    background: var(--card-bg);
-    box-shadow: var(--shadow);
-    overflow-y: auto;
-    z-index: 1020;
-    transition: var(--transition);
-}
+        /* Sidebar styles from notifications page */
+        .sidebar {
+            border-radius: 0;
+            margin: 0 !important;
+            padding: 0;
+            position: fixed;
+            top: 0; 
+            height: 100vh; 
+            overflow-y: auto;
+            max-height: none;
+            z-index: 1020;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            left: 0;
+            width: 25%;
+            max-width: 320px;
+            min-width: 240px;
+        }
 
-.sidebar:hover {
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
+        .sidebar-content {
+            padding: 1rem;
+            height: calc(100% - 70px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-.sidebar h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 1.5rem;
-}
+        .sidebar:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
 
-
-
-.list-group-item {
+        .sidebar .list-group-item {
             border: none;
             background: transparent;
             font-size: 1.1rem;
@@ -97,48 +105,35 @@ body {
             border-radius: 12px !important;
             margin-bottom: 0.5rem;
             transition: var(--transition);
-            cursor: pointer; 
-            margin: 0 0.7rem;
+            cursor: pointer;
         }
 
-        .list-group-item:hover {
+        .sidebar .list-group-item:hover {
             background: #f7f5ff;
             transform: translateX(5px);
         }
-.sidebar .list-group-item i {
-  margin-left: 10px;
-    margin-bottom: 10px; 
-    
-    color: var(--primary-color);
-    transition: var(--transition);
-}
 
-.sidebar .list-group-item a:hover i {
-  margin-left: 10px;
-    margin-bottom: 10px; 
-    color: var(--primary-hover); 
-    transform: translateX(5px);
-}
-.group-avatar {
-    border-radius: 50%;
-}
+        .sidebar .icon-purple, .sidebar .bi {
+            color: var(--primary-color) !important;
+            transition: var(--transition);
+        }
 
-.sidebar-bottom {
-    margin-top: auto;
-}
+        .sidebar .list-group-item:hover .bi {
+            transform: scale(1.2);
+        }
 
-.btn-logout {
+        .btn-logout {
             background-color: var(--primary-color);
             color: #fff;
             border-radius: 10px;
-            width: 90%;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: .5rem;
             padding: 0.8rem;
             transition: var(--transition);
-            margin: 10px;
+            border: none;
         }
 
         .btn-logout:hover {
@@ -148,239 +143,570 @@ body {
             color: #fff !important;
         }
 
-/* ---------------- Chat Wrapper ---------------- */
-.chat-wrapper {
-    
-    display: flex;
-    margin-left: 25%; /* leave space for main sidebar */
-    height: 100vh;
-}
+        /* Mobile hamburger menu */
+        .hamburger-menu {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1030;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+        }
 
+        /* Main content adjustments - keeping original width */
+        .main-content-chat {
+            
+              margin-left: 320px; /* aligns exactly with sidebar */
+            
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease;
+            height: calc(100vh - 40px);
+            display: flex;
+            overflow: hidden;
+        }
 
-/* Chat sidebar inside chat page */
-.chat-sidebar { width: 320px; background: #fff; border-right: 1px solid #eee; display: flex; flex-direction: column; }
-  .chat-header { padding: 16px; font-size: 1.3rem; font-weight: 700; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); background: #faf9ff; }
-  .chat-list { flex: 1; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
-  .chat-list li { border-bottom: 1px solid #f3f3f3; }
-  .chat-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; text-decoration: none; color: var(--text-color); cursor: pointer; transition: var(--transition); }
-  .chat-link:hover { background: #f5f3ff; transform: translateX(4px); }
-  .avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--secondary-color); background: #ddd; }
-  .chat-info { flex: 1; }
-  .username { font-weight: 600; color: #333; }
-  .last-message { font-size: 0.85rem; color: #777; }
+        .main-content-chat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
 
-  .chat-room { flex: 1; display: flex; flex-direction: column; }
-  .chat-room-header { padding: 14px 20px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 1.1rem; background: #faf9ff; color: var(--primary-color); }
-  
-  .chat-search {padding: 10px;border-bottom: 1px solid #eee;background: #fff;}
+        /* Mobile compact sidebar */
+        .sidebar.compact {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 70px;
+            min-width: 70px;
+            max-width: 70px;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1020;
+        }
 
-  .chat-search input {width: 100%;padding: 8px 12px;border: 1px solid #ddd;border-radius: 20px;font-size: 0.9rem;outline: none;color: #333;}
+        .sidebar.compact .sidebar-header {
+            padding: 0.8rem 0.5rem 0.6rem;
+        }
 
-  .chat-search input:focus {border-color: var(--primary-color);box-shadow: 0 0 0 2px rgba(109,59,215,0.15);}
+        .sidebar.compact .sidebar-logo {
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
 
+        .sidebar.compact .list-group-item {
+            padding: 0.8rem;
+            text-align: center;
+        }
 
-  .chat-log { flex: 1; padding: 20px; overflow-y: auto; background: var(--light-bg); display: flex; flex-direction: column; gap: 12px; }
-  .message { max-width: 65%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; }
-  .message.me { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
-  .message.other { align-self: flex-start; background: #fff; border: 1px solid #eee; color: #333; border-bottom-left-radius: 4px; }
-  .chat-form { display: flex; gap: 10px; padding: 14px; border-top: 1px solid #eee; background: #faf9ff; }
-  .chat-input { flex: 1; padding: 12px 14px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-  .chat-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(109,59,215,0.2); }
-  .send-button { padding: 10px 18px; border-radius: 20px; border: none; background: var(--primary-color); color: #fff; font-weight: 600; cursor: pointer; transition: var(--transition); }
-  .send-button:hover { background: var(--primary-hover); transform: translateY(-2px); }
-</style>
+        .sidebar.compact .list-group-text {
+            display: none;
+        }
 
+        .sidebar.compact .sidebar-bottom {
+            text-align: center;
+        }
 
+        .sidebar.compact .btn-logout span {
+            display: none;
+        }
 
-<div class="sidebar">
-    <div class="sidebar-header">
-        <a class="sidebar-brand fw-bold" href="#">Cirqly</a>
-    </div>
+        .sidebar.compact .btn-logout {
+            padding: 0.8rem;
+        }
 
-    <ul class="list-group list-group-flush mb-4">
-        <li class="list-group-item">
-            <a href="{% url 'home' %}" class="text-decoration-none text-dark">
-                <i class="bi bi-house-door-fill me-2"></i> Home
-            </a>
-        </li>
-        <li class="list-group-item">
-            <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
-                <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
-            </a>
-        </li>
+        /* Responsive adjustments */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                position: fixed;
+                left: -320px;
+                top: 0;
+                height: 100vh;
+                z-index: 1020;
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(320px);
+            }
+            
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            .main-content-chat {
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            /* Mobile compact sidebar */
+            .sidebar.compact {
+                width: 70px;
+                min-width: 70px;
+                max-width: 70px;
+                left: -70px;
+            }
+            
+            .sidebar.compact.active {
+                transform: translateX(70px);
+            }
+            
+            .main-content-chat {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .sidebar-header {
+                padding: 0.8rem 0.5rem 0.6rem;
+            }
+            
+            .sidebar-logo {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ---------------- Chat Wrapper ---------------- */
+        .chat-wrapper {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Chat sidebar inside chat page */
+        .chat-sidebar { 
+            width: 320px; 
+            background: #fff; 
+            border-right: 1px solid #eee; 
+            display: flex; 
+            flex-direction: column; 
+        }
         
-    </ul>
+        .chat-header { 
+            padding: 16px; 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            color: var(--primary-color); 
+            border-bottom: 2px solid var(--secondary-color); 
+            background: #faf9ff; 
+        }
+        
+        .chat-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            list-style: none; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        .chat-list li { 
+            border-bottom: 1px solid #f3f3f3; 
+        }
+        
+        .chat-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 14px 16px; 
+            text-decoration: none; 
+            color: var(--text-color); 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        
+        .chat-link:hover { 
+            background: #f5f3ff; 
+            transform: translateX(4px); 
+        }
+        
+        .avatar { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--secondary-color); 
+            background: #ddd; 
+        }
+        
+        .chat-info { 
+            flex: 1; 
+        }
+        
+        .username { 
+            font-weight: 600; 
+            color: #333; 
+        }
+        
+        .last-message { 
+            font-size: 0.85rem; 
+            color: #777; 
+        }
 
-    <div class="mb-2 fw-semibold" style="margin-left: 10px; margin-top: 20px;margin-bottom: 20px;">Favorites</div>
-    <ul class="list-group list-group-flush mb-4">
-        <li class="list-group-item">
-            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
-                <i class="bi bi-chat-dots-fill me-2"></i> Message
-            </a>
-        </li>
-    </ul>
+        .chat-room { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .chat-room-header { 
+            padding: 14px 20px; 
+            border-bottom: 1px solid #eee; 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            background: #faf9ff; 
+            color: var(--primary-color); 
+        }
+        
+        .chat-search {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+        }
 
-    <div class="mb-2 fw-semibold" style="margin-left: 10px;">Following</div>
-    <ul class="list-group list-group-flush mb-4">
-        {% for follow in following_list %}
-            <li class="list-group-item d-flex align-items-center">
-                <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
-                     class="group-avatar me-2" width="30" height="30">
-                <a href="{% url 'profile' follow.following.username %}">
-                    {{ follow.following.username }}
-                </a>
-            </li>
-        {% empty %}
-            <li class="list-group-item text-muted">You are not following anyone yet</li>
-        {% endfor %}
-    </ul>
+        .chat-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            color: #333;
+        }
 
-    <div class="sidebar-bottom">
-        <form action="{% url 'logout_confirm' %}" method="get">
-            <button type="submit" class="btn btn-logout">
-                 Log Out
-            </button>
-        </form>
-    </div>
+        .chat-search input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(109,59,215,0.15);
+        }
+
+        .chat-log { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: var(--light-bg); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        
+        .message { 
+            max-width: 65%; 
+            padding: 10px 14px; 
+            border-radius: 16px; 
+            font-size: 0.95rem; 
+            line-height: 1.4; 
+        }
+        
+        .message.me { 
+            align-self: flex-end; 
+            background: var(--primary-color); 
+            color: white; 
+            border-bottom-right-radius: 4px; 
+        }
+        
+        .message.other { 
+            align-self: flex-start; 
+            background: #fff; 
+            border: 1px solid #eee; 
+            color: #333; 
+            border-bottom-left-radius: 4px; 
+        }
+        
+        .chat-form { 
+            display: flex; 
+            gap: 10px; 
+            padding: 14px; 
+            border-top: 1px solid #eee; 
+            background: #faf9ff; 
+        }
+        
+        .chat-input { 
+            flex: 1; 
+            padding: 12px 14px; 
+            border: 1px solid #ddd; 
+            border-radius: 20px; 
+            outline: none; 
+        }
+        
+        .chat-input:focus { 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 0 2px rgba(109,59,215,0.2); 
+        }
+        
+        .send-button { 
+            padding: 10px 18px; 
+            border-radius: 20px; 
+            border: none; 
+            background: var(--primary-color); 
+            color: #fff; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: var(--transition); 
+        }
+        
+        .send-button:hover { 
+            background: var(--primary-hover); 
+            transform: translateY(-2px); 
+        }
+
+        .group-avatar {
+            border-radius: 50%;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+<!-- Mobile Hamburger Menu -->
+<div class="hamburger-menu">
+    <i class="bi bi-list"></i>
 </div>
 
-<div class="chat-wrapper">
-  <!-- Sidebar -->
-  <div class="chat-sidebar">
-    <div class="chat-header">Chats</div>
+<div class="container-fluid">
+    <div class="row g-4 flex-wrap">
+        <!-- Sidebar from notifications page -->
+        <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
+            <div class="sidebar mb-0 h-100 d-flex flex-column">
+                <!-- Updated sidebar header with proper logo alignment -->
+                <div class="sidebar-header">
+                    <a href="#" class="sidebar-logo">Cirqly</a>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div>
+                        <div class="mb-4">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="{% url 'home' %}" class="text-decoration-none text-dark">
+                                        <i class="bi bi-house-door-fill me-2"></i> <span class="list-group-text">Home</span>
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                                        <i class="bi bi-person-circle me-2 icon-purple"></i> <span class="list-group-text">Profile</span>
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
+                                        <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mb-2" style="font-weight: 700;">Favorites</div>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item">
+                                <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-chat-dots-fill me-2"></i> <span class="list-group-text">Message</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="mb-2" style="font-weight: 700;">Following</div>
+                        <ul class="list-group list-group-flush">
+                            {% for follow in following_list %}
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                        class="group-avatar me-2" width="30" height="30">
+                                    <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                        <span class="list-group-text">{{ follow.following.username }}</span>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item text-muted">You are not following anyone yet</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
 
-    <div class="chat-search">
-      <input type="text" id="chat-search-input" placeholder="Search users...">
-    </div>
-    <ul class="chat-list">
-      {% for user in users %}
-        <li>
-          <div class="chat-link" data-user-id="{{ user.id }}">
-            <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
-            <div class="chat-info">
-              <div class="username">{{ user.username }}</div>
-              <div class="last-message">
-                {{ user.last_message }}
-              </div>
-
-
+                    <div class="sidebar-bottom mt-4">
+                        <form action="{% url 'logout_confirm' %}" method="get">
+                            <button type="submit" class="btn btn-logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Log Out</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
+        </div>
+        
+        <!-- Main content area - Chat functionality preserved -->
+        <div class="col-lg-9 col-md-8 col-12 order-lg-2 order-md-2 order-1" style="padding-left: 0; padding-right: 0;">
+            <div class="main-content-chat">
+                <!-- Chat sidebar inside chat page -->
+                <div class="chat-sidebar">
+                    <div class="chat-header">Chats</div>
 
-  <!-- Chat Room -->
-  <div class="chat-room">
-    <div class="chat-room-header">Select a user to start chat</div>
-    <div id="chat-log" class="chat-log">
-  {% for message in messages %}
-    <div class="message">
-      <b>{{ message.sender.username }}:</b> {{ message.text }}
+                    <div class="chat-search">
+                        <input type="text" id="chat-search-input" placeholder="Search users...">
+                    </div>
+                    <ul class="chat-list">
+                        {% for user in users %}
+                            <li>
+                                <div class="chat-link" data-user-id="{{ user.id }}">
+                                    <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
+                                    <div class="chat-info">
+                                        <div class="username">{{ user.username }}</div>
+                                        <div class="last-message">
+                                            {{ user.last_message }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Chat Room -->
+                <div class="chat-room">
+                    <div class="chat-room-header">Select a user to start chat</div>
+                    <div id="chat-log" class="chat-log">
+                        {% for message in messages %}
+                            <div class="message">
+                                <b>{{ message.sender.username }}:</b> {{ message.text }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <form id="chat-form" class="chat-form">
+                        <input id="chat-input" type="text" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                        <button type="submit" class="send-button">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  {% endfor %}
-</div>
-
-
-    <form id="chat-form" class="chat-form">
-      <input id="chat-input" type="text" class="chat-input" placeholder="Type a message..." autocomplete="off">
-      <button type="submit" class="send-button">Send</button>
-    </form>
-  </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  let chatSocket = null;
-  let activeUserId = null;
-
-  const chatLog = document.getElementById('chat-log');
-  const chatForm = document.getElementById('chat-form');
-  const chatInput = document.getElementById('chat-input');
-  const chatHeader = document.querySelector('.chat-room-header');
-  const chatLinks = document.querySelectorAll('.chat-link');
-
-  const currentUsername = "{{ request.user.username|escapejs }}";
-  const currentUserId = parseInt("{{ request.user.id }}");
-
-  function escapeHtml(unsafe) {
-    return unsafe.replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
-  }
-
-  chatLinks.forEach(link => {
-    link.addEventListener('click', async () => {
-      const userId = parseInt(link.dataset.userId);
-      if (activeUserId === userId) return;
-      activeUserId = userId;
-
-      chatHeader.textContent = 'Chat with ' + link.querySelector('.username').textContent;
-      chatLog.innerHTML = '';
-
-      if (chatSocket) chatSocket.close();
-
-      // Load previous messages via AJAX
-      const response = await fetch(`/chat/chat/${userId}/?ajax=1`);
-      if (response.ok) {
-        const messages = await response.json();
-        messages.forEach(m => {
-          const div = document.createElement('div');
-          div.className = 'message ' + (m.sender === currentUsername ? 'me' : 'other');
-          div.innerHTML = `<b>${escapeHtml(m.sender)}:</b> ${escapeHtml(m.text)}`;
-          chatLog.appendChild(div);
-          // Update last message in sidebar
-          link.querySelector('.last-message').textContent = m.text;
-        });
-        chatLog.scrollTop = chatLog.scrollHeight;
-      }
-
-      // Create room_name
-      const roomName = [currentUserId, userId].sort((a,b) => a-b).join('_');
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${roomName}/`);
-
-      chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const div = document.createElement('div');
-        div.className = 'message ' + (data.username === currentUsername ? 'me' : 'other');
-        div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
-        chatLog.appendChild(div);
-        chatLog.scrollTop = chatLog.scrollHeight;
-
-        // Update last message in sidebar
-        link.querySelector('.last-message').textContent = data.message;
-      };
-
-      chatSocket.onclose = () => console.warn('Chat socket closed');
+    // --- Mobile sidebar toggle ---
+    const hamburgerMenu = document.querySelector('.hamburger-menu');
+    const sidebar = document.querySelector('.sidebar');
+    
+    hamburgerMenu.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
     });
-  });
+    
+    // Close sidebar when clicking outside
+    document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('active') && 
+            !sidebar.contains(e.target) && 
+            !hamburgerMenu.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
 
-  chatForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+    // Chat functionality (preserved from your original code)
+    document.addEventListener('DOMContentLoaded', function() {
+        let chatSocket = null;
+        let activeUserId = null;
 
-    const message = chatInput.value.trim();
-    if (!message) return;
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatHeader = document.querySelector('.chat-room-header');
+        const chatLinks = document.querySelectorAll('.chat-link');
 
-    chatSocket.send(JSON.stringify({ message }));
-    chatInput.value = '';
-    chatInput.focus();
-  });
-});
+        const currentUsername = "{{ request.user.username|escapejs }}";
+        const currentUserId = parseInt("{{ request.user.id }}");
 
-const searchInput = document.getElementById("chat-search-input");
-searchInput.addEventListener("keyup", function () {
-  const filter = searchInput.value.toLowerCase();
-  document.querySelectorAll(".chat-list li").forEach(li => {
-    const username = li.querySelector(".username").textContent.toLowerCase();
-    li.style.display = username.includes(filter) ? "" : "none";
-  });
-});
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+        }
 
+        chatLinks.forEach(link => {
+            link.addEventListener('click', async () => {
+                const userId = parseInt(link.dataset.userId);
+                if (activeUserId === userId) return;
+                activeUserId = userId;
+
+                chatHeader.textContent = 'Chat with ' + link.querySelector('.username').textContent;
+                chatLog.innerHTML = '';
+
+                if (chatSocket) chatSocket.close();
+
+                // Load previous messages via AJAX
+                const response = await fetch(`/chat/chat/${userId}/?ajax=1`);
+                if (response.ok) {
+                    const messages = await response.json();
+                    messages.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'message ' + (m.sender === currentUsername ? 'me' : 'other');
+                        div.innerHTML = `<b>${escapeHtml(m.sender)}:</b> ${escapeHtml(m.text)}`;
+                        chatLog.appendChild(div);
+                        // Update last message in sidebar
+                        link.querySelector('.last-message').textContent = m.text;
+                    });
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+
+                // Create room_name
+                const roomName = [currentUserId, userId].sort((a,b) => a-b).join('_');
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${roomName}/`);
+
+                chatSocket.onmessage = function(e) {
+                    const data = JSON.parse(e.data);
+                    const div = document.createElement('div');
+                    div.className = 'message ' + (data.username === currentUsername ? 'me' : 'other');
+                    div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
+                    chatLog.appendChild(div);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+
+                    // Update last message in sidebar
+                    link.querySelector('.last-message').textContent = data.message;
+                };
+
+                chatSocket.onclose = () => console.warn('Chat socket closed');
+            });
+        });
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            chatSocket.send(JSON.stringify({ message }));
+            chatInput.value = '';
+            chatInput.focus();
+        });
+    });
+
+    const searchInput = document.getElementById("chat-search-input");
+    searchInput.addEventListener("keyup", function () {
+        const filter = searchInput.value.toLowerCase();
+        document.querySelectorAll(".chat-list li").forEach(li => {
+            const username = li.querySelector(".username").textContent.toLowerCase();
+            li.style.display = username.includes(filter) ? "" : "none";
+        });
+    });
 </script>
 </body>
 </html>

@@ -484,7 +484,7 @@
   }
 
   .post-user-info small {
-    color: #777;
+    color: 777;
   }
 
   .post-options {
@@ -605,6 +605,7 @@
     margin-bottom: 12px;
     gap: 10px;
     animation: fadeIn 0.3s ease;
+    position: relative;
   }
 
   .comment-avatar {
@@ -622,12 +623,34 @@
     border-radius: 18px;
     max-width: 90%;
     flex-grow: 1;
+    position: relative;
   }
 
   .comment-content .fw-semibold {
     color: var(--primary-color);
     font-weight: 600;
     margin-right: 5px;
+  }
+
+  .comment-delete-btn {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0;
+    transition: var(--transition);
+  }
+
+  .comment-item:hover .comment-delete-btn {
+    opacity: 1;
+  }
+
+  .comment-delete-btn:hover {
+    color: #ff4d4d;
   }
 
   .comment-form {
@@ -862,6 +885,11 @@
                                     <i class="bi bi-person-circle me-2 icon-purple"></i> <span class="list-group-text">Profile</span>
                                 </a>
                                 </li>
+                                <li class="list-group-item">
+                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="mb-2 fw-semibold">Favorites</div>
@@ -996,9 +1024,14 @@
                     <div class="comments-section" id="comments-{{ post.id }}">
                       <div class="comments-list">
                         {% for comment in post.comments.all %}
-                        <div class="comment-item">
+                        <div class="comment-item" id="comment-{{ comment.id }}">
                           <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
                           <div class="comment-content">
+                            {% if comment.user == request.user or post.user == request.user %}
+                            <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
                             <span class="fw-semibold">{{ comment.user.username }}</span>
                             <div>{{ comment.content }}</div>
                             <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
@@ -1238,14 +1271,19 @@
         .then(res => res.json())
         .then(data => {
             const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
-            // Create new comment div
+            
+            // Create new comment div with delete button
             const commentDiv = document.createElement('div');
             commentDiv.className = 'comment-item';
+            commentDiv.id = 'comment-' + data.comment_id;
             commentDiv.style.opacity = '0';
             
             commentDiv.innerHTML = `
                 <img src="${data.user_profile_image}" class="comment-avatar">
                 <div class="comment-content">
+                    <button class="comment-delete-btn" data-comment-id="${data.comment_id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                     <span class="fw-semibold">${data.username}</span>
                     <div>${data.content}</div>
                     <small class="text-muted">just now</small>
@@ -1253,6 +1291,13 @@
             `;
 
             commentsList.appendChild(commentDiv);
+            
+            // Add event listener to the new delete button
+            const deleteBtn = commentDiv.querySelector('.comment-delete-btn');
+            deleteBtn.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                deleteComment(commentId, postId);
+            });
             
             // Animate in the new comment
             setTimeout(() => {
@@ -1272,7 +1317,51 @@
     });
   });
 
+  // Delete comment function
+  function deleteComment(commentId, postId) {
+    fetch("{% url 'delete_comment' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'comment_id=' + commentId
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const commentDiv = document.getElementById('comment-' + commentId);
+            if (commentDiv) {
+                // Animate out before removing
+                commentDiv.style.transform = 'scale(0.9)';
+                commentDiv.style.opacity = '0';
+                commentDiv.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    commentDiv.remove();
+                }, 300);
+            }
+            
+            // Update comment count
+            const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+            if(commentCount) {
+                commentCount.textContent = data.total_comments;
+            }
+        }
+    })
+    .catch(err => console.error(err));
+  }
 
+  // Add event listeners to existing comment delete buttons
+  document.querySelectorAll('.comment-delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const postId = this.closest('.comments-section').previousElementSibling
+            .querySelector('.comment-btn').dataset.postId;
+        deleteComment(commentId, postId);
+    });
+  });
 
   // Toggle post options menu
   document.querySelectorAll('.post-options-btn').forEach(btn => {

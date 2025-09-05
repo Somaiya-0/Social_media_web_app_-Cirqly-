@@ -3,6 +3,9 @@
 
 {% block content %}
 
+<!-- Add Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
   /* --- Global Styles & Variables --- */
   :root {
@@ -21,12 +24,190 @@
     background-color: var(--light-bg);
     color: var(--text-color);
     font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding-top: 30px; /* Added for fixed navbar */
   }
 
-  /* --- Notifications Container --- */
-  .notifications-container {
+  /* Container adjustments for sidebar layout */
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .row.g-4 {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Sidebar header with Cirqly logo */
+  .sidebar-header {
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 1.3rem 2rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .sidebar-header .sidebar-logo {
+    color: var(--primary-color) !important;
+    font-size: 2rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .sidebar-header .sidebar-logo:hover {
+    transform: scale(1.05);
+    color: var(--primary-hover) !important;
+  }
+
+  /* Sidebar styles from profile page */
+  .sidebar {
+    border-radius: 0;
+    margin: 0 !important;
+    padding: 0;
+    position: fixed;
+    top: 0; 
+    height: 100vh; 
+    overflow-y: visible;
+    max-height: none;
+    z-index: 1020;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    left: 0;
+    width: 25%;
+    max-width: 320px;
+    min-width: 240px;
+    transform: translateX(0);
+    animation: slideInLeft 0.5s ease;
+  }
+
+  .sidebar-content {
+    padding: 1rem;
+    height: calc(100% - 70px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* instead of space-between */
+    gap: 1rem;
+  }
+
+  .sidebar:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+
+  .sidebar .list-group-item {
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 12px !important;
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar .list-group-item:hover {
+    background: #f7f5ff;
+    transform: translateX(5px);
+  }
+
+  .sidebar .icon-purple, .sidebar .bi {
+    color: var(--primary-color) !important;
+    transition: var(--transition);
+  }
+
+  .sidebar .list-group-item:hover .bi {
+    transform: scale(1.2);
+  }
+
+  .btn-logout {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 0.8rem;
+    transition: var(--transition);
+    border: none;
+  }
+
+  .btn-logout:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
+    color: #fff !important;
+  }
+
+  /* Mobile hamburger menu */
+  .hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 85px;
+    left: 20px;
+    z-index: 1030;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+
+  /* Mobile compact sidebar */
+  .sidebar.compact {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1020;
+  }
+
+  .sidebar.compact .sidebar-header {
+    padding: 0.8rem 0.5rem 0.6rem;
+  }
+
+  .sidebar.compact .sidebar-logo {
+    font-size: 1.5rem;
+    margin-top: 0;
+  }
+
+  .sidebar.compact .list-group-item {
+    padding: 0.8rem;
+    text-align: center;
+  }
+
+  .sidebar.compact .list-group-text {
+    display: none;
+  }
+
+  .sidebar.compact .sidebar-bottom {
+    text-align: center;
+  }
+
+  .sidebar.compact .btn-logout span {
+    display: none;
+  }
+
+  .sidebar.compact .btn-logout {
+    padding: 0.8rem;
+  }
+
+  /* Main content adjustments - keeping original width */
+  .main-content-notifications {
     max-width: 800px;
-    margin: 40px auto;
+    margin: 0 20px 20px calc(25% + 20px);
     padding: 25px;
     background: var(--card-bg);
     border-radius: var(--border-radius);
@@ -35,11 +216,12 @@
     animation: fadeInUp 0.6s ease;
   }
 
-  .notifications-container:hover {
+  .main-content-notifications:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   }
 
+  /* --- Notifications Container --- */
   .notifications-header {
     display: flex;
     justify-content: space-between;
@@ -203,6 +385,45 @@
     }
   }
 
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      max-height: 0;
+    }
+    to {
+      opacity: 1;
+      max-height: 500px;
+    }
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   /* --- Badge for unread notifications --- */
   .unread-badge {
     display: inline-block;
@@ -214,17 +435,46 @@
     animation: pulse 2s infinite;
   }
 
-  @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+  /* Responsive adjustments */
+  @media (max-width: 991.98px) {
+    .sidebar {
+      position: fixed;
+      left: -320px;
+      top: 70px;
+      height: calc(100vh - 70px);
+      z-index: 1030;
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar.active {
+      transform: translateX(320px);
+    }
+    
+    .hamburger-menu {
+      display: flex;
+    }
+    
+    .main-content-notifications {
+      margin: 0 auto 1rem;
+      width: 100%;
+    }
   }
 
-  /* --- Responsive adjustments --- */
-  @media (max-width: 600px) {
-    .notifications-container {
-      margin: 20px auto;
-      padding: 15px;
+  @media (max-width: 767.98px) {
+    .main-content-notifications {
+      padding: 1rem;
+    }
+    
+    /* Mobile compact sidebar */
+    .sidebar.compact {
+      width: 70px;
+      min-width: 70px;
+      max-width: 70px;
+      left: -70px;
+    }
+    
+    .sidebar.compact.active {
+      transform: translateX(70px);
     }
     
     .notification-item {
@@ -239,213 +489,232 @@
       flex-wrap: wrap;
     }
   }
+
+  @media (max-width: 575.98px) {
+    .notifications-header h2 {
+      font-size: 1.3rem;
+    }
+    
+    .sidebar-header {
+      padding: 0.8rem 0.5rem 0.6rem;
+    }
+    
+    .sidebar-logo {
+      font-size: 1.5rem;
+    }
+  }
 </style>
 
-<div class="notifications-container">
-  <div class="notifications-header">
-    <h2>Notifications</h2>
-    <!-- <div class="notifications-actions">
-      <button class="btn btn-primary">Mark all as read</button>
-    </div> -->
-  </div>
-
-  <ul class="notifications-list">
-    {% for n in notifications %}
-      <li class="notification-item {% if not n.is_read %}unread{% endif %}">
-        <img src="{{ n.sender.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" 
-             alt="{{ n.sender.username }}" class="notification-avatar">
-        
-        <div class="notification-content">
-          <p class="notification-text">
-            {% if n.notification_type == "like" %}
-              <strong>{{ n.sender.username }}</strong> liked your post.
-            {% elif n.notification_type == "comment" %}
-              <strong>{{ n.sender.username }}</strong> commented on your post: "{{ n.comment.content }}"
-            {% elif n.notification_type == "follow" %}
-              <strong>{{ n.sender.username }}</strong> started following you.
-            {% endif %}
-            {% if not n.is_read %}<span class="unread-badge"></span>{% endif %}
-          </p>
-          
-          {% if n.notification_type == "comment" and n.post %}
-          <div class="notification-post-preview">
-            "{{ n.post.content|truncatewords:10 }}"
-          </div>
-          {% endif %}
-          
-          <p class="notification-time">{{ n.created_at|timesince }} ago</p>
-          
-          <!-- <div class="notification-actions">
-  {% if n.notification_type == "follow" %}
-    <button class="btn btn-primary btn-sm follow-back-btn" data-user-id="{{ n.sender.id }}" data-notif-id="{{ n.id }}">Follow back</button>
-  {% elif n.notification_type == "comment" or n.notification_type == "like" %}
-    <button class="btn btn-secondary btn-sm view-post-btn" data-post-id="{{ n.post.id }}">View post</button>
-  {% endif %}
-  <button class="btn btn-secondary btn-sm dismiss-btn" data-notif-id="{{ n.id }}">Dismiss</button>
-</div> -->
-
-        </div>
-      </li>
-    {% empty %}
-      <div class="empty-state">
-        <div>🔔</div>
-        <p>No notifications yet.</p>
-        <p>When you get notifications, they'll show up here.</p>
-      </div>
-    {% endfor %}
-  </ul>
+<!-- Mobile Hamburger Menu -->
+<div class="hamburger-menu">
+  <i class="bi bi-list"></i>
 </div>
 
-<!-- <script>
-  // Mark notifications as read when clicked
-  document.querySelectorAll('.notification-item').forEach(item => {
-    item.addEventListener('click', function(e) {
-      // Don't trigger if clicking on a button
-      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-      
-      this.classList.remove('unread');
-      const badge = this.querySelector('.unread-badge');
-      if (badge) badge.remove();
-      
-      // In a real app, you would send an AJAX request to mark as read
-      // const notificationId = this.dataset.notificationId;
-      // fetch(`/notifications/mark-as-read/${notificationId}/`, {method: 'POST'});
-    });
-  });
+<div class="container-fluid">
+    <div class="row g-4 flex-wrap">
+        <!-- Sidebar from profile page -->
+        <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
+            <div class="sidebar mb-0 h-100 d-flex flex-column">
+                <!-- Updated sidebar header with proper logo alignment -->
+                <div class="sidebar-header">
+                    <a href="#" class="sidebar-logo">Cirqly</a>
+                </div>
+                
+                <div class="sidebar-content">
+                    <div>
+                        <div class="mb-4">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> <span class="list-group-text">Home</span></a></li>
+                                <li class="list-group-item">
+                                <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-person-circle me-2 icon-purple"></i> <span class="list-group-text">Profile</span>
+                                </a>
+                                </li>
+                                <li class="list-group-item">
+                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mb-2 " style="font-weight: 700;">Favorites</div>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item">
+                                <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-chat-dots-fill me-2"></i> <span class="list-group-text">Message</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="mb-2 " style="font-weight: 700;">Following</div>
+                    <ul class="list-group list-group-flush">
+                        {% for follow in following_list %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                    class="group-avatar me-2" width="30" height="30">
+                                <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                    <span class="list-group-text">{{ follow.following.username }}</span>
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">You are not following anyone yet</li>
+                        {% endfor %}
+                    </ul>
+                    </div>
 
-  // Mark all as read button
-  document.querySelector('.notifications-actions .btn-primary').addEventListener('click', function() {
-    document.querySelectorAll('.notification-item.unread').forEach(item => {
-      item.classList.remove('unread');
-      const badge = item.querySelector('.unread-badge');
-      if (badge) badge.remove();
-    });
-    
-    // In a real app, you would send an AJAX request to mark all as read
-    // fetch('/notifications/mark-all-as-read/', {method: 'POST'});
-  });
+                    <div class="sidebar-bottom mt-4">
+                        <form action="{% url 'logout_confirm' %}" method="get">
+                            <button type="submit" class="btn btn-logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Log Out</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content area -->
+        <div class="col-lg-9 col-md-8 col-12 order-lg-2 order-md-2 order-1">
+            <div class="main-content-notifications mb-0">
+                <div class="notifications-header">
+                  <h2>Notifications</h2>
+                  <!-- <div class="notifications-actions">
+                    <button class="btn btn-primary">Mark all as read</button>
+                  </div> -->
+                </div>
 
-  // Add animation to notification items
-  document.querySelectorAll('.notification-item').forEach((item, index) => {
-    item.style.animationDelay = `${index * 0.05}s`;
-  });
-  
-  // Dismiss notification
-  document.querySelectorAll('.dismiss-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation(); // Prevent marking as read
-      const notifId = this.dataset.notifId;
-      const notifItem = this.closest('.notification-item');
-      
-      fetch(`/notifications/dismiss/${notifId}/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
-        .then(res => {
-          if(res.ok) notifItem.remove();
-        });
-    });
-  });
+                <ul class="notifications-list">
+                  {% for n in notifications %}
+                    <li class="notification-item {% if not n.is_read %}unread{% endif %}">
+                      <img src="{{ n.sender.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" 
+                           alt="{{ n.sender.username }}" class="notification-avatar">
+                      
+                      <div class="notification-content">
+                        <p class="notification-text">
+                          {% if n.notification_type == "like" %}
+                            <strong>{{ n.sender.username }}</strong> liked your post.
+                          {% elif n.notification_type == "comment" %}
+                            <strong>{{ n.sender.username }}</strong> commented on your post: "{{ n.comment.content }}"
+                          {% elif n.notification_type == "follow" %}
+                            <strong>{{ n.sender.username }}</strong> started following you.
+                          {% endif %}
+                          {% if not n.is_read %}<span class="unread-badge"></span>{% endif %}
+                        </p>
+                        
+                        {% if n.notification_type == "comment" and n.post %}
+                        <div class="notification-post-preview">
+                          "{{ n.post.content|truncatewords:10 }}"
+                        </div>
+                        {% endif %}
+                        
+                        <p class="notification-time">{{ n.created_at|timesince }} ago</p>
+                        
 
-  // Follow back
-  document.querySelectorAll('.follow-back-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const userId = this.dataset.userId;
-      const notifItem = this.closest('.notification-item');
-      
-      fetch(`/users/follow/${userId}/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
-        .then(res => {
-          if(res.ok) {
-            this.textContent = 'Following';
-            this.disabled = true;
-          }
-        });
-    });
-  });
-
-  // View post
-  document.querySelectorAll('.view-post-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const postId = this.dataset.postId;
-      window.location.href = `/posts/${postId}/`; // Redirect to post detail page
-    });
-  });
-
-
-</script> -->
+                      </div>
+                    </li>
+                  {% empty %}
+                    <div class="empty-state">
+                      <div>🔔</div>
+                      <p>No notifications yet.</p>
+                      <p>When you get notifications, they'll show up here.</p>
+                    </div>
+                  {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-const csrfToken = '{{ csrf_token }}';
-
-// Use event delegation on the container
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.querySelector('.notifications-list');
-
-  container.addEventListener('click', function(e) {
-    const target = e.target;
-
-    // Dismiss button
-    if (target.classList.contains('dismiss-btn')) {
-      e.stopPropagation();
-      const notifItem = target.closest('.notification-item');
-      const notifId = target.dataset.notifId;
-
-      fetch(`/notifications/dismiss/${notifId}/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken }
-      }).then(res => {
-        if (res.ok) notifItem.remove();
-      });
-    }
-
-    // Follow back button
-    if (target.classList.contains('follow-back-btn')) {
-      e.stopPropagation();
-      const userId = target.dataset.userId;
-
-      fetch(`/users/follow/${userId}/`, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken }
-      }).then(res => {
-        if (res.ok) {
-          target.textContent = 'Following';
-          target.disabled = true;
-        }
-      });
-    }
-
-    // View post button
-    if (target.classList.contains('view-post-btn')) {
-      e.stopPropagation();
-      const postId = target.dataset.postId;
-      window.location.href = `/posts/${postId}/`;
+  // --- Mobile sidebar toggle ---
+  const hamburgerMenu = document.querySelector('.hamburger-menu');
+  const sidebar = document.querySelector('.sidebar');
+  
+  hamburgerMenu.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+  
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        !hamburgerMenu.contains(e.target)) {
+      sidebar.classList.remove('active');
     }
   });
 
-  // Mark as read when clicking notification (excluding buttons)
-  container.addEventListener('click', function(e) {
-    const notifItem = e.target.closest('.notification-item');
-    if (!notifItem) return;
-    if (e.target.closest('button')) return;
+  // Notification functionality
+  const csrfToken = '{{ csrf_token }}';
 
-    notifItem.classList.remove('unread');
-    const badge = notifItem.querySelector('.unread-badge');
-    if (badge) badge.remove();
+  // Use event delegation on the container
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.notifications-list');
 
-    // Optional: send AJAX to mark as read
-    // const notifId = notifItem.dataset.notifId;
-    // fetch(`/notifications/mark-as-read/${notifId}/`, {method: 'POST', headers:{'X-CSRFToken': csrfToken}});
-  });
+    container.addEventListener('click', function(e) {
+      const target = e.target;
 
-  // Mark all as read
-  document.querySelector('.notifications-actions .btn-primary').addEventListener('click', function() {
-    document.querySelectorAll('.notification-item.unread').forEach(item => {
-      item.classList.remove('unread');
-      const badge = item.querySelector('.unread-badge');
+      // Dismiss button
+      if (target.classList.contains('dismiss-btn')) {
+        e.stopPropagation();
+        const notifItem = target.closest('.notification-item');
+        const notifId = target.dataset.notifId;
+
+        fetch(`/notifications/dismiss/${notifId}/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrfToken }
+        }).then(res => {
+          if (res.ok) notifItem.remove();
+        });
+      }
+
+      // Follow back button
+      if (target.classList.contains('follow-back-btn')) {
+        e.stopPropagation();
+        const userId = target.dataset.userId;
+
+        fetch(`/users/follow/${userId}/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrfToken }
+        }).then(res => {
+          if (res.ok) {
+            target.textContent = 'Following';
+            target.disabled = true;
+          }
+        });
+      }
+
+      // View post button
+      if (target.classList.contains('view-post-btn')) {
+        e.stopPropagation();
+        const postId = target.dataset.postId;
+        window.location.href = `/posts/${postId}/`;
+      }
+    });
+
+    // Mark as read when clicking notification (excluding buttons)
+    container.addEventListener('click', function(e) {
+      const notifItem = e.target.closest('.notification-item');
+      if (!notifItem) return;
+      if (e.target.closest('button')) return;
+
+      notifItem.classList.remove('unread');
+      const badge = notifItem.querySelector('.unread-badge');
       if (badge) badge.remove();
     });
-    fetch('/notifications/mark-all-as-read/', {method: 'POST', headers: {'X-CSRFToken': csrfToken}});
+
+    // Mark all as read
+    const markAllReadBtn = document.querySelector('.notifications-actions .btn-primary');
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', function() {
+        document.querySelectorAll('.notification-item.unread').forEach(item => {
+          item.classList.remove('unread');
+          const badge = item.querySelector('.unread-badge');
+          if (badge) badge.remove();
+        });
+        fetch('/notifications/mark-all-as-read/', {method: 'POST', headers: {'X-CSRFToken': csrfToken}});
+      });
+    }
   });
-});
 </script>
 
 {% endblock %}
