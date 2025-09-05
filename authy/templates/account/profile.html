@@ -38,7 +38,31 @@
     margin-right: 0;
   }
 
-  /* Sidebar styles from home page */
+  /* Sidebar header with Cirqly logo - UPDATED TO MATCH NOTIFICATIONS PAGE */
+  .sidebar-header {
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 1.3rem 2rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .sidebar-header .sidebar-logo {
+    color: var(--primary-color) !important;
+    font-size: 2rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .sidebar-header .sidebar-logo:hover {
+    transform: scale(1.05);
+    color: var(--primary-hover) !important;
+  }
+
+  /* Sidebar styles from profile page */
   .sidebar {
     border-radius: 0;
     margin: 0 !important;
@@ -58,28 +82,6 @@
     min-width: 240px;
     transform: translateX(0);
     animation: slideInLeft 0.5s ease;
-    
-}
-
-
-  .sidebar-header {
-    padding: 1rem 1rem 0.8rem;
-    border-bottom: 1px solid #eee;
-    text-align: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar-logo {
-    color: var(--primary-color) !important;
-    font-size: 1.8rem;
-    font-weight: 700;
-    text-decoration: none;
-    display: block;
-    transition: var(--transition);
-  }
-
-  .sidebar-logo:hover {
-    transform: scale(1.05);
   }
 
   .sidebar-content {
@@ -87,7 +89,8 @@
     height: calc(100% - 70px);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start; /* instead of space-between */
+    gap: 1rem;
   }
 
   .sidebar:hover {
@@ -159,49 +162,47 @@
   }
 
   /* Mobile compact sidebar */
-.sidebar.compact {
-    position: fixed;       /* ensure it stays fixed */
-    top: 0;                /* flush with top of screen */
+  .sidebar.compact {
+    position: fixed;
+    top: 0;
     left: 0;
     width: 70px;
     min-width: 70px;
     max-width: 70px;
-    height: 100vh;         /* full viewport height */
-    overflow: hidden;      /* prevent scrolling */
+    height: 100vh;
+    overflow: hidden;
     z-index: 1020;
-}
+  }
 
-.sidebar.compact .sidebar-header {
+  .sidebar.compact .sidebar-header {
     padding: 0.8rem 0.5rem 0.6rem;
-}
+  }
 
-.sidebar.compact .sidebar-logo {
+  .sidebar.compact .sidebar-logo {
     font-size: 1.5rem;
-    margin-top: 0;         /* flush with top */
-}
+    margin-top: 0;
+  }
 
-.sidebar.compact .list-group-item {
+  .sidebar.compact .list-group-item {
     padding: 0.8rem;
     text-align: center;
-}
+  }
 
-.sidebar.compact .list-group-text {
+  .sidebar.compact .list-group-text {
     display: none;
-}
+  }
 
-.sidebar.compact .sidebar-bottom {
+  .sidebar.compact .sidebar-bottom {
     text-align: center;
-}
+  }
 
-.sidebar.compact .btn-logout span {
+  .sidebar.compact .btn-logout span {
     display: none;
-}
+  }
 
-.sidebar.compact .btn-logout {
+  .sidebar.compact .btn-logout {
     padding: 0.8rem;
-}
-
-
+  }
 
   /* Main content adjustments - keeping original width */
  .main-content-profile {
@@ -484,7 +485,7 @@
   }
 
   .post-user-info small {
-    color: 777;
+    color: #777;
   }
 
   .post-options {
@@ -856,7 +857,7 @@
       padding: 0.8rem 0.5rem 0.6rem;
     }
     
-    .sidebar-logo {
+    .sidebar-header .sidebar-logo {
       font-size: 1.5rem;
     }
   }
@@ -872,9 +873,11 @@
         <!-- Sidebar from home page -->
         <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
             <div class="sidebar mb-0 h-100 d-flex flex-column">
+                <!-- Updated sidebar header with proper logo alignment -->
                 <div class="sidebar-header">
                     <a href="#" class="sidebar-logo">Cirqly</a>
                 </div>
+                
                 <div class="sidebar-content">
                     <div>
                         <div class="mb-4">

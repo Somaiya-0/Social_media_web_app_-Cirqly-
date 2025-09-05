@@ -28,12 +28,15 @@
             background: var(--light-bg);
             color: var(--text-color);
             padding-top: 0;
+            overflow-x: hidden;
+            
         }
 
         /* --- Global Sidebar Styles (from notifications) --- */
         .container-fluid {
             padding-left: 0;
             padding-right: 0;
+            max-width: 100%;
         }
         
         .row.g-4 {
@@ -161,17 +164,20 @@
             cursor: pointer;
         }
 
-        /* Main content adjustments - keeping original width */
+        /* Main content adjustments */
+        .main-content-container {
+            margin-left: 25%;
+            width: 75%;
+            padding: 20px;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
         .main-content-chat {
-            
-              margin-left: 320px; /* aligns exactly with sidebar */
-            
             background: var(--card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            transition: var(--transition);
-            animation: fadeInUp 0.6s ease;
-            height: calc(100vh - 40px);
+            height: 100%;
             display: flex;
             overflow: hidden;
         }
@@ -243,9 +249,10 @@
                 display: flex;
             }
             
-            .main-content-chat {
-                margin: 20px;
-                width: calc(100% - 40px);
+            .main-content-container {
+                margin-left: 0;
+                width: 100%;
+                padding: 10px;
             }
         }
 
@@ -262,9 +269,8 @@
                 transform: translateX(70px);
             }
             
-            .main-content-chat {
-                margin: 10px;
-                width: calc(100% - 20px);
+            .main-content-container {
+                padding: 5px;
             }
         }
 
@@ -275,6 +281,17 @@
             
             .sidebar-logo {
                 font-size: 1.5rem;
+            }
+            
+            .main-content-chat {
+                flex-direction: column;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #eee;
+                max-height: 40vh;
             }
         }
 
@@ -553,46 +570,48 @@
         
         <!-- Main content area - Chat functionality preserved -->
         <div class="col-lg-9 col-md-8 col-12 order-lg-2 order-md-2 order-1" style="padding-left: 0; padding-right: 0;">
-            <div class="main-content-chat">
-                <!-- Chat sidebar inside chat page -->
-                <div class="chat-sidebar">
-                    <div class="chat-header">Chats</div>
+            <div class="main-content-container">
+                <div class="main-content-chat">
+                    <!-- Chat sidebar inside chat page -->
+                    <div class="chat-sidebar">
+                        <div class="chat-header">Chats</div>
 
-                    <div class="chat-search">
-                        <input type="text" id="chat-search-input" placeholder="Search users...">
-                    </div>
-                    <ul class="chat-list">
-                        {% for user in users %}
-                            <li>
-                                <div class="chat-link" data-user-id="{{ user.id }}">
-                                    <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
-                                    <div class="chat-info">
-                                        <div class="username">{{ user.username }}</div>
-                                        <div class="last-message">
-                                            {{ user.last_message }}
+                        <div class="chat-search">
+                            <input type="text" id="chat-search-input" placeholder="Search users...">
+                        </div>
+                        <ul class="chat-list">
+                            {% for user in users %}
+                                <li>
+                                    <div class="chat-link" data-user-id="{{ user.id }}">
+                                        <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
+                                        <div class="chat-info">
+                                            <div class="username">{{ user.username }}</div>
+                                            <div class="last-message">
+                                                {{ user.last_message }}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <!-- Chat Room -->
-                <div class="chat-room">
-                    <div class="chat-room-header">Select a user to start chat</div>
-                    <div id="chat-log" class="chat-log">
-                        {% for message in messages %}
-                            <div class="message">
-                                <b>{{ message.sender.username }}:</b> {{ message.text }}
-                            </div>
-                        {% endfor %}
+                                </li>
+                            {% endfor %}
+                        </ul>
                     </div>
 
-                    <form id="chat-form" class="chat-form">
-                        <input id="chat-input" type="text" class="chat-input" placeholder="Type a message..." autocomplete="off">
-                        <button type="submit" class="send-button">Send</button>
-                    </form>
+                    <!-- Chat Room -->
+                    <div class="chat-room">
+                        <div class="chat-room-header">Select a user to start chat</div>
+                        <div id="chat-log" class="chat-log">
+                            {% for message in messages %}
+                                <div class="message">
+                                    <b>{{ message.sender.username }}:</b> {{ message.text }}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <form id="chat-form" class="chat-form">
+                            <input id="chat-input" type="text" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                            <button type="submit" class="send-button">Send</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
