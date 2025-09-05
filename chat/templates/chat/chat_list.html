@@ -1,25 +1,164 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cirqly</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+ :root {
+            --primary-color: #6d3bd7;
+            --primary-hover: #5a2bb9;
+            --secondary-color: #a78bfa;
+            --accent-color: #8b5cf6;
+            --text-color: #333;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 24px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+      }
 
-{% block content %}
-<style>
-  :root {
-    --primary-color: #6d3bd7;
-    --primary-hover: #362fc9;
-    --secondary-color: #a78bfa;
-    --text-color: #444;
-    --light-bg: #f4f5fb;
-    --card-bg: #ffffff;
-    --border-radius: 14px;
-    --shadow: 0 6px 18px rgba(0,0,0,0.08);
-    --transition: all 0.3s ease;
-  }
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background: var(--light-bg);
+    color: var(--text-color);
+}
 
-  body { font-family: 'Inter', sans-serif; margin: 0; background: var(--light-bg); color: var(--text-color); }
+/* Sidebar Cirqly logo header like homepage navbar */
+.sidebar-header {
+    width: 100%;
+    background-color: #fff;                    /* same as navbar */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* same shadow */
+    padding: 1.3rem 2rem;                      /* same padding as navbar */
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
-  .chat-wrapper { display: flex; height: 90vh; max-width: 1200px; margin: 20px auto; background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; }
+/* Logo inside header */
+.sidebar-header .sidebar-brand {
+    color: var(--primary-color) !important;
+    font-size: 2rem;
+    font-weight: 800;
+    text-decoration: none !important;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
 
-  .chat-sidebar { width: 320px; background: #fff; border-right: 1px solid #eee; display: flex; flex-direction: column; }
+.sidebar-header .sidebar-brand:hover {
+    transform: scale(1.05);
+    color: var(--primary-hover) !important;
+}
+
+
+/* Main sidebar */
+.sidebar {
+    position: fixed;
+    top: 0; /* flush with top */
+    left: 0;
+    width: 25%;
+    max-width: 320px;
+    min-width: 240px;
+    height: 100vh;
+    
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    overflow-y: auto;
+    z-index: 1020;
+    transition: var(--transition);
+}
+
+.sidebar:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.sidebar h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+
+
+.list-group-item {
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            padding: 0.8rem 1rem;
+            border-radius: 12px !important;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+            cursor: pointer; 
+            margin: 0 0.7rem;
+        }
+
+        .list-group-item:hover {
+            background: #f7f5ff;
+            transform: translateX(5px);
+        }
+.sidebar .list-group-item i {
+  margin-left: 10px;
+    margin-bottom: 10px; 
+    
+    color: var(--primary-color);
+    transition: var(--transition);
+}
+
+.sidebar .list-group-item a:hover i {
+  margin-left: 10px;
+    margin-bottom: 10px; 
+    color: var(--primary-hover); 
+    transform: translateX(5px);
+}
+.group-avatar {
+    border-radius: 50%;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.btn-logout {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 10px;
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: 0.8rem;
+            transition: var(--transition);
+            margin: 10px;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
+            color: #fff !important;
+        }
+
+/* ---------------- Chat Wrapper ---------------- */
+.chat-wrapper {
+    
+    display: flex;
+    margin-left: 25%; /* leave space for main sidebar */
+    height: 100vh;
+}
+
+
+/* Chat sidebar inside chat page */
+.chat-sidebar { width: 320px; background: #fff; border-right: 1px solid #eee; display: flex; flex-direction: column; }
   .chat-header { padding: 16px; font-size: 1.3rem; font-weight: 700; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); background: #faf9ff; }
   .chat-list { flex: 1; overflow-y: auto; list-style: none; margin: 0; padding: 0; }
   .chat-list li { border-bottom: 1px solid #f3f3f3; }
@@ -50,6 +189,60 @@
   .send-button { padding: 10px 18px; border-radius: 20px; border: none; background: var(--primary-color); color: #fff; font-weight: 600; cursor: pointer; transition: var(--transition); }
   .send-button:hover { background: var(--primary-hover); transform: translateY(-2px); }
 </style>
+
+
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a class="sidebar-brand fw-bold" href="#">Cirqly</a>
+    </div>
+
+    <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item">
+            <a href="{% url 'home' %}" class="text-decoration-none text-dark">
+                <i class="bi bi-house-door-fill me-2"></i> Home
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
+            </a>
+        </li>
+        
+    </ul>
+
+    <div class="mb-2 fw-semibold" style="margin-left: 10px; margin-top: 20px;margin-bottom: 20px;">Favorites</div>
+    <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item">
+            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                <i class="bi bi-chat-dots-fill me-2"></i> Message
+            </a>
+        </li>
+    </ul>
+
+    <div class="mb-2 fw-semibold" style="margin-left: 10px;">Following</div>
+    <ul class="list-group list-group-flush mb-4">
+        {% for follow in following_list %}
+            <li class="list-group-item d-flex align-items-center">
+                <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                     class="group-avatar me-2" width="30" height="30">
+                <a href="{% url 'profile' follow.following.username %}">
+                    {{ follow.following.username }}
+                </a>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">You are not following anyone yet</li>
+        {% endfor %}
+    </ul>
+
+    <div class="sidebar-bottom">
+        <form action="{% url 'logout_confirm' %}" method="get">
+            <button type="submit" class="btn btn-logout">
+                 Log Out
+            </button>
+        </form>
+    </div>
+</div>
 
 <div class="chat-wrapper">
   <!-- Sidebar -->
@@ -189,4 +382,5 @@ searchInput.addEventListener("keyup", function () {
 });
 
 </script>
-{% endblock %}
+</body>
+</html>

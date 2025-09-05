@@ -4,6 +4,7 @@ from django.db.models import Q, Max
 from django.contrib.auth.decorators import login_required
 from .models import Message
 from django.http import JsonResponse
+from authy.models import Follow
 
 @login_required
 def chatlist(request):

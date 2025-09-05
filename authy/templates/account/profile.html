@@ -3,6 +3,9 @@
 
 {% block content %}
 
+<!-- Add Bootstrap Icons CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
   /* --- Global Styles & Variables --- */
   :root {
@@ -21,12 +24,115 @@
     background-color: var(--light-bg);
     color: var(--text-color);
     font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding-top: 70px; /* Added for fixed navbar */
+  }
+
+  /* Container adjustments for sidebar layout */
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .row.g-4 {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Sidebar styles from home page */
+  .sidebar {
+    border-radius: 20px;
+    margin-top: 1.5rem;
+    padding: 2rem 1rem;
+    margin: 0 !important;
+    position: fixed;
+    top: 70px; 
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    max-height: none;
+    z-index: 1020;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    left: 0;
+    width: 25%;
+    max-width: 320px;
+    min-width: 240px;
+    transform: translateX(0);
+    animation: slideInLeft 0.5s ease;
+  }
+
+  .sidebar:hover {
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  }
+
+  .sidebar .list-group-item {
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    padding: 0.8rem 1rem;
+    border-radius: 12px !important;
+    margin-bottom: 0.5rem;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+
+  .sidebar .list-group-item:hover {
+    background: #f7f5ff;
+    transform: translateX(5px);
+  }
+
+  .sidebar .icon-purple, .sidebar .bi {
+    color: var(--primary-color) !important;
+    transition: var(--transition);
+  }
+
+  .sidebar .list-group-item:hover .bi {
+    transform: scale(1.2);
+  }
+
+  .btn-logout {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 0.8rem;
+    transition: var(--transition);
+    border: none;
+  }
+
+  .btn-logout:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
+    color: #fff !important;
+  }
+
+  /* Main content adjustments for sidebar */
+  .main-content-profile {
+    padding: 2rem;
+    border-radius: 20px;
+    margin-top: 1.5rem;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    animation: fadeIn 0.7s ease;
+    margin-left: calc(25% + 1rem);
+    width: calc(75% - 3rem);
+  }
+
+  .main-content-profile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   }
 
   /* --- Profile Header --- */
   .profile-container {
-    max-width: 800px;
-    margin: 40px auto;
+    max-width: 100%;
+    margin: 0 auto 40px;
     padding: 25px;
     background: var(--card-bg);
     border-radius: var(--border-radius);
@@ -120,7 +226,7 @@
   .profile-stats {
     text-align: right;
     font-size: 14px;
-    color: #7d7b7b;
+    color: 7d7b7b;
   }
 
   .stat-numbers {
@@ -174,7 +280,7 @@
   /* --- Modal styles --- */
   .modal-overlay {
     position: fixed;
-    z-index: 1000;
+    z-index: 9999; /* Increased z-index to ensure it's on top */
     left: 0; 
     top: 0;
     width: 100%; 
@@ -196,8 +302,9 @@
     padding: 25px 30px;
     position: relative;
     animation: slideIn 0.4s cubic-bezier(0.18, 1.25, 0.4, 1) forwards;
-    transform: translateY(30px);
-    opacity: 0;
+    transform: translateY(0); /* Removed initial translation */
+    opacity: 1; /* Start fully visible */
+    z-index: 10000; /* Higher than overlay */
   }
 
   .modal h3 { 
@@ -234,7 +341,7 @@
 
   /* --- Posts Section --- */
   .posts-container {
-    max-width: 800px;
+    max-width: 100%;
     margin: 40px auto;
   }
 
@@ -514,6 +621,17 @@
     100% { transform: scale(1); }
   }
 
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   /* --- Empty state --- */
   .empty-state {
     text-align: center;
@@ -526,49 +644,231 @@
     margin-bottom: 15px;
     color: #ddd;
   }
+
+  /* Responsive adjustments */
+  @media (max-width: 991.98px) {
+    .sidebar {
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      min-width: unset;
+      height: auto;
+      margin-bottom: 1rem;
+      animation: fadeInUp 0.5s ease;
+    }
+    
+    .main-content-profile {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .profile-container {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .profile-info {
+      flex-direction: column;
+    }
+    
+    .profile-stats {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .post-image {
+      height: auto;
+      max-width: 100%;
+    }
+    
+    .main-content-profile {
+      padding: 1rem;
+    }
+  }
 </style>
 
-<div class="profile-container">
-  <!-- Left: profile info -->
-  <div class="profile-info">
-    <!-- Profile Picture -->
-    <label for="uploadProfilePic" class="profile-picture">
-      {% if profile.image and profile.image.url %}
-        <img src="{{ profile.image.url }}" alt="Profile Picture">
-      {% else %}
-        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile">
-      {% endif %}
-    </label>
-    <input type="file" id="uploadProfilePic" style="display:none;">
+<div class="container-fluid">
+    <div class="row g-4 flex-wrap">
+        <!-- Sidebar from home page -->
+        <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
+            <div class="sidebar mb-0 h-100 d-flex flex-column">
+                <div>
+                    <div class="mb-4">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
+                            <li class="list-group-item">
+                            <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                                <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
+                            </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mb-2 fw-semibold">Favorites</div>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item">
+                            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                                <i class="bi bi-chat-dots-fill me-2"></i>Message
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="mb-2 fw-semibold">Following</div>
+                <ul class="list-group list-group-flush">
+                    {% for follow in following_list %}
+                        <li class="list-group-item d-flex align-items-center">
+                            <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                class="group-avatar me-2" width="30" height="30">
+                            <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                {{ follow.following.username }}
+                            </a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">You are not following anyone yet</li>
+                    {% endfor %}
+                </ul>
 
-    <div class="profile-details">
-      <h2>{{ profile_user.get_full_name|default:profile_user.username }}</h2>
-      <p class="username">@{{ profile_user.username }}</p>
-      <div id="bio-text">{{ profile.bio|default:"No bio yet." }}</div>
-      {% if request.user == profile_user %}
-        <button id="openBioModalBtn" class="btn btn-primary">Add/Edit Bio</button>
-      {% endif %}
+                <div class="sidebar-bottom mt-4">
+                    <form action="{% url 'logout_confirm' %}" method="get">
+                        <button type="submit" class="btn btn-logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Log Out</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    
     </div>
-  </div>
+        
+        <!-- Main content area -->
+        <div class="col-lg-9 col-md-8 col-12 order-lg-2 order-md-2 order-1">
+            <div class="main-content-profile mb-0">
+                <div class="profile-container">
+                  <!-- Left: profile info -->
+                  <div class="profile-info">
+                    <!-- Profile Picture -->
+                    <label for="uploadProfilePic" class="profile-picture">
+                      {% if profile.image and profile.image.url %}
+                        <img src="{{ profile.image.url }}" alt="Profile Picture">
+                      {% else %}
+                        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile">
+                      {% endif %}
+                    </label>
+                    <input type="file" id="uploadProfilePic" style="display:none;">
 
-  <!-- Right: followers and buttons -->
-  <div class="profile-stats">
-    <div><span class="stat-numbers">{{ profile_user.follower_relations.count }}</span> Followers</div>
-    <div><span class="stat-numbers">{{ profile_user.following_relations.count }}</span> Following</div>
+                    <div class="profile-details">
+                      <h2>{{ profile_user.get_full_name|default:profile_user.username }}</h2>
+                      <p class="username">@{{ profile_user.username }}</p>
+                      <div id="bio-text">{{ profile.bio|default:"No bio yet." }}</div>
+                      {% if request.user == profile_user %}
+                        <button id="openBioModalBtn" class="btn btn-primary">Add/Edit Bio</button>
+                      {% endif %}
+                    </div>
+                  </div>
 
-    {% if request.user != profile_user %}
-      <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top:15px;">
-        {% csrf_token %}
-        {% if is_following %}
-          <button type="submit" class="btn btn-danger">Unfollow</button>
-        {% else %}
-          <button type="submit" class="btn btn-primary">Follow</button>
-        {% endif %}
-      </form>
-    {% else %}
-      <button id="openPostModalBtn" class="btn btn-primary" style="margin-top:15px;">Create Post</button>
-    {% endif %}
-  </div>
+                  <!-- Right: followers and buttons -->
+                  <div class="profile-stats">
+                    <div><span class="stat-numbers">{{ profile_user.follower_relations.count }}</span> Followers</div>
+                    <div><span class="stat-numbers">{{ profile_user.following_relations.count }}</span> Following</div>
+
+                    {% if request.user != profile_user %}
+                      <form method="post" action="{% url 'follow_user' profile_user.username %}" style="margin-top:15px;">
+                        {% csrf_token %}
+                        {% if is_following %}
+                          <button type="submit" class="btn btn-danger">Unfollow</button>
+                        {% else %}
+                          <button type="submit" class="btn btn-primary">Follow</button>
+                        {% endif %}
+                      </form>
+                    {% else %}
+                      <button id="openPostModalBtn" class="btn btn-primary" style="margin-top:15px;">Create Post</button>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- --- Posts List --- -->
+                <div class="posts-container">
+                  <h3>Posts</h3>
+                  {% for post in profile_user.posts.all|dictsortreversed:"created_at" %}
+                  <div id="post-{{ post.id }}" class="post-card">
+                    <!-- Post Header -->
+                    <div class="post-header">
+                      <img src="{{ profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" alt="Profile">
+                      <div class="post-user-info">
+                        <strong>{{ profile_user.username }}</strong><br>
+                        <small>{{ post.created_at|date:"M d, Y H:i" }}</small>
+                      </div>
+
+                      <!-- Post Options (3 dots menu) -->
+                      {% if request.user == profile_user %}
+                      <div class="post-options">
+                        <button class="post-options-btn" data-post-id="{{ post.id }}">⋮</button>
+                        <div class="post-options-menu" id="post-options-{{ post.id }}">
+                          <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="post-content">
+                      <p>{{ post.content }}</p>
+                      {% if post.post_image %}
+                        <img src="{{ post.post_image.url }}" class="post-image">
+                      {% endif %}
+                    </div>
+
+                    <!-- Post Actions -->
+                    <div class="post-actions">
+                      <button class="action-btn like-btn {% if user in post.likes.all %}active{% endif %}" data-post-id="{{ post.id }}">
+                        <span class="like-icon">❤️</span>
+                        <span class="like-count">{{ post.total_likes }}</span>
+                      </button>
+                      <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+                        <span>💬</span>
+                        <span class="comment-count">{{ post.comments.count }}</span>
+                      </button>
+                    </div>
+                    
+                    <!-- Full comments section (hidden initially) -->
+                    <div class="comments-section" id="comments-{{ post.id }}">
+                      <div class="comments-list">
+                        {% for comment in post.comments.all %}
+                        <div class="comment-item">
+                          <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
+                          <div class="comment-content">
+                            <span class="fw-semibold">{{ comment.user.username }}</span>
+                            <div>{{ comment.content }}</div>
+                            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+
+                      <!-- Add comment form -->
+                      <form class="comment-form" data-post-id="{{ post.id }}">
+                        {% csrf_token %}
+                        <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
+                        <input type="text" name="content" placeholder="Write a comment..." required>
+                        <button type="submit">Post</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="empty-state">
+                    <div>📝</div>
+                    <p>No posts yet.</p>
+                    {% if request.user == profile_user %}
+                      <button id="openPostModalBtn2" class="btn btn-primary">Create your first post</button>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- --- Profile Picture Modal --- -->
@@ -615,85 +915,6 @@
       </div>
     </form>
   </div>
-</div>
-
-<!-- --- Posts List --- -->
-<div class="posts-container">
-  <h3>Posts</h3>
-  {% for post in profile_user.posts.all|dictsortreversed:"created_at" %}
-  <div id="post-{{ post.id }}" class="post-card">
-    <!-- Post Header -->
-    <div class="post-header">
-      <img src="{{ profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" alt="Profile">
-      <div class="post-user-info">
-        <strong>{{ profile_user.username }}</strong><br>
-        <small>{{ post.created_at|date:"M d, Y H:i" }}</small>
-      </div>
-
-      <!-- Post Options (3 dots menu) -->
-      {% if request.user == profile_user %}
-      <div class="post-options">
-        <button class="post-options-btn" data-post-id="{{ post.id }}">⋮</button>
-        <div class="post-options-menu" id="post-options-{{ post.id }}">
-          <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
-        </div>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Post Content -->
-    <div class="post-content">
-      <p>{{ post.content }}</p>
-      {% if post.post_image %}
-        <img src="{{ post.post_image.url }}" class="post-image">
-      {% endif %}
-    </div>
-
-    <!-- Post Actions -->
-    <div class="post-actions">
-      <button class="action-btn like-btn {% if user in post.likes.all %}active{% endif %}" data-post-id="{{ post.id }}">
-        <span class="like-icon">❤️</span>
-        <span class="like-count">{{ post.total_likes }}</span>
-      </button>
-      <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
-        <span>💬</span>
-        <span class="comment-count">{{ post.comments.count }}</span>
-      </button>
-    </div>
-    
-    <!-- Full comments section (hidden initially) -->
-    <div class="comments-section" id="comments-{{ post.id }}">
-      <div class="comments-list">
-        {% for comment in post.comments.all %}
-        <div class="comment-item">
-          <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
-          <div class="comment-content">
-            <span class="fw-semibold">{{ comment.user.username }}</span>
-            <div>{{ comment.content }}</div>
-            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Add comment form -->
-      <form class="comment-form" data-post-id="{{ post.id }}">
-        {% csrf_token %}
-        <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
-        <input type="text" name="content" placeholder="Write a comment..." required>
-        <button type="submit">Post</button>
-      </form>
-    </div>
-  </div>
-  {% empty %}
-  <div class="empty-state">
-    <div>📝</div>
-    <p>No posts yet.</p>
-    {% if request.user == profile_user %}
-      <button id="openPostModalBtn2" class="btn btn-primary">Create your first post</button>
-    {% endif %}
-  </div>
-  {% endfor %}
 </div>
 
 <!-- Delete Post Confirmation Modal -->
@@ -891,6 +1112,8 @@
         menu.style.display = 'none';
     });
   });
+
+
 
   // Post delete functionality
   let postToDelete = null;

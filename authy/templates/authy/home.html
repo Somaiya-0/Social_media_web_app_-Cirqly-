@@ -417,6 +417,7 @@
             background-color: var(--primary-hover);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(109, 59, 215, 0.3);
+            color: #fff !important;
         }
 
         /* Icons */
@@ -501,6 +502,7 @@
 .btn-post:hover {
     background-color: #7a4cd6;
     transform: scale(1.05);
+    color: #fff !important;
 }
         /* Modal for Delete Confirmation */
         .modal-overlay {
@@ -810,7 +812,7 @@
                 <div class="sidebar-bottom mt-4">
                     <form action="{% url 'logout_confirm' %}" method="get">
                         <button type="submit" class="btn btn-logout">
-                            <i class="bi bi-box-arrow-right"></i>
+                            
                             <span>Log Out</span>
                         </button>
                     </form>
