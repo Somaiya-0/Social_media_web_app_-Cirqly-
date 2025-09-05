@@ -24,7 +24,7 @@
     background-color: var(--light-bg);
     color: var(--text-color);
     font-family: 'Inter', 'Segoe UI', sans-serif;
-    padding-top: 70px; /* Added for fixed navbar */
+    padding-top: 30px; /* Added for fixed navbar */
   }
 
   /* Container adjustments for sidebar layout */
@@ -40,14 +40,13 @@
 
   /* Sidebar styles from home page */
   .sidebar {
-    border-radius: 20px;
-    margin-top: 1.5rem;
-    padding: 2rem 1rem;
+    border-radius: 0;
     margin: 0 !important;
+    padding: 0;
     position: fixed;
-    top: 70px; 
-    height: calc(100vh - 70px);
-    overflow-y: auto;
+    top: 0; 
+    height: 100vh; 
+    overflow-y: visible;
     max-height: none;
     z-index: 1020;
     background: var(--card-bg);
@@ -59,6 +58,36 @@
     min-width: 240px;
     transform: translateX(0);
     animation: slideInLeft 0.5s ease;
+    
+}
+
+
+  .sidebar-header {
+    padding: 1rem 1rem 0.8rem;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-logo {
+    color: var(--primary-color) !important;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
+    transition: var(--transition);
+  }
+
+  .sidebar-logo:hover {
+    transform: scale(1.05);
+  }
+
+  .sidebar-content {
+    padding: 1rem;
+    height: calc(100% - 70px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .sidebar:hover {
@@ -111,27 +140,89 @@
     color: #fff !important;
   }
 
-  /* Main content adjustments for sidebar */
-  .main-content-profile {
-    padding: 2rem;
-    border-radius: 20px;
-    margin-top: 1.5rem;
+  /* Mobile hamburger menu */
+  .hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 85px;
+    left: 20px;
+    z-index: 1030;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+
+  /* Mobile compact sidebar */
+.sidebar.compact {
+    position: fixed;       /* ensure it stays fixed */
+    top: 0;                /* flush with top of screen */
+    left: 0;
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    height: 100vh;         /* full viewport height */
+    overflow: hidden;      /* prevent scrolling */
+    z-index: 1020;
+}
+
+.sidebar.compact .sidebar-header {
+    padding: 0.8rem 0.5rem 0.6rem;
+}
+
+.sidebar.compact .sidebar-logo {
+    font-size: 1.5rem;
+    margin-top: 0;         /* flush with top */
+}
+
+.sidebar.compact .list-group-item {
+    padding: 0.8rem;
+    text-align: center;
+}
+
+.sidebar.compact .list-group-text {
+    display: none;
+}
+
+.sidebar.compact .sidebar-bottom {
+    text-align: center;
+}
+
+.sidebar.compact .btn-logout span {
+    display: none;
+}
+
+.sidebar.compact .btn-logout {
+    padding: 0.8rem;
+}
+
+
+
+  /* Main content adjustments - keeping original width */
+ .main-content-profile {
+    max-width: 800px;
+    margin: 0 20px 20px calc(25% + 20px); /* top margin 0 to remove gap */
+    padding: 25px;
     background: var(--card-bg);
+    border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     transition: var(--transition);
-    animation: fadeIn 0.7s ease;
-    margin-left: calc(25% + 1rem);
-    width: calc(75% - 3rem);
-  }
+    animation: fadeInUp 0.6s ease;
+}
 
   .main-content-profile:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
   }
 
   /* --- Profile Header --- */
   .profile-container {
-    max-width: 100%;
+    width: 100%;
     margin: 0 auto 40px;
     padding: 25px;
     background: var(--card-bg);
@@ -142,7 +233,6 @@
     align-items: flex-start;
     border-left: 5px solid var(--primary-color);
     transition: var(--transition);
-    animation: fadeInUp 0.6s ease;
   }
 
   .profile-container:hover {
@@ -172,7 +262,7 @@
     border-color: var(--primary-color);
   }
 
-  .profile-picture::after {
+  .profile-picture.editable::after {
     content: 'Change';
     position: absolute;
     bottom: 0;
@@ -187,7 +277,7 @@
     transition: var(--transition);
   }
 
-  .profile-picture:hover::after {
+  .profile-picture.editable:hover::after {
     opacity: 1;
   }
 
@@ -226,7 +316,7 @@
   .profile-stats {
     text-align: right;
     font-size: 14px;
-    color: 7d7b7b;
+    color: #7d7b7b;
   }
 
   .stat-numbers {
@@ -648,17 +738,24 @@
   /* Responsive adjustments */
   @media (max-width: 991.98px) {
     .sidebar {
-      position: static;
-      width: 100%;
-      max-width: 100%;
-      min-width: unset;
-      height: auto;
-      margin-bottom: 1rem;
-      animation: fadeInUp 0.5s ease;
+      position: fixed;
+      left: -320px;
+      top: 70px;
+      height: calc(100vh - 70px);
+      z-index: 1030;
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar.active {
+      transform: translateX(320px);
+    }
+    
+    .hamburger-menu {
+      display: flex;
     }
     
     .main-content-profile {
-      margin-left: 0;
+      margin: 0 auto 1rem;
       width: 100%;
     }
   }
@@ -687,60 +784,121 @@
     .main-content-profile {
       padding: 1rem;
     }
+    
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .profile-details h2 {
+      font-size: 1.5rem;
+    }
+    
+    /* Mobile compact sidebar */
+    .sidebar.compact {
+      width: 70px;
+      min-width: 70px;
+      max-width: 70px;
+      left: -70px;
+    }
+    
+    .sidebar.compact.active {
+      transform: translateX(70px);
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .profile-container {
+      padding: 15px;
+    }
+    
+    .posts-container h3 {
+      font-size: 1.3rem;
+    }
+    
+    .post-header img {
+      width: 35px;
+      height: 35px;
+    }
+    
+    .post-user-info strong {
+      font-size: 0.9rem;
+    }
+    
+    .post-user-info small {
+      font-size: 0.8rem;
+    }
+    
+    .sidebar-header {
+      padding: 0.8rem 0.5rem 0.6rem;
+    }
+    
+    .sidebar-logo {
+      font-size: 1.5rem;
+    }
   }
 </style>
+
+<!-- Mobile Hamburger Menu -->
+<div class="hamburger-menu">
+  <i class="bi bi-list"></i>
+</div>
 
 <div class="container-fluid">
     <div class="row g-4 flex-wrap">
         <!-- Sidebar from home page -->
         <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
             <div class="sidebar mb-0 h-100 d-flex flex-column">
-                <div>
-                    <div class="mb-4">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
+                <div class="sidebar-header">
+                    <a href="#" class="sidebar-logo">Cirqly</a>
+                </div>
+                <div class="sidebar-content">
+                    <div>
+                        <div class="mb-4">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> <span class="list-group-text">Home</span></a></li>
+                                <li class="list-group-item">
+                                <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-person-circle me-2 icon-purple"></i> <span class="list-group-text">Profile</span>
+                                </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mb-2 fw-semibold">Favorites</div>
+                        <ul class="list-group list-group-flush mb-4">
                             <li class="list-group-item">
-                            <a href="{% url 'profile' user.username %}" class="text-decoration-none text-dark">
-                                <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
-                            </a>
+                                <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-chat-dots-fill me-2"></i> <span class="list-group-text">Message</span>
+                                </a>
                             </li>
                         </ul>
-                    </div>
-                    <div class="mb-2 fw-semibold">Favorites</div>
-                    <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item">
-                            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
-                                <i class="bi bi-chat-dots-fill me-2"></i>Message
-                            </a>
-                        </li>
+                        <div class="mb-2 fw-semibold">Following</div>
+                    <ul class="list-group list-group-flush">
+                        {% for follow in following_list %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                    class="group-avatar me-2" width="30" height="30">
+                                <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                    <span class="list-group-text">{{ follow.following.username }}</span>
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">You are not following anyone yet</li>
+                        {% endfor %}
                     </ul>
-                    <div class="mb-2 fw-semibold">Following</div>
-                <ul class="list-group list-group-flush">
-                    {% for follow in following_list %}
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
-                                class="group-avatar me-2" width="30" height="30">
-                            <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
-                                {{ follow.following.username }}
-                            </a>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item text-muted">You are not following anyone yet</li>
-                    {% endfor %}
-                </ul>
+                    </div>
 
-                <div class="sidebar-bottom mt-4">
-                    <form action="{% url 'logout_confirm' %}" method="get">
-                        <button type="submit" class="btn btn-logout">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Log Out</span>
-                        </button>
-                    </form>
+                    <div class="sidebar-bottom mt-4">
+                        <form action="{% url 'logout_confirm' %}" method="get">
+                            <button type="submit" class="btn btn-logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Log Out</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    
-    </div>
         
         <!-- Main content area -->
         <div class="col-lg-9 col-md-8 col-12 order-lg-2 order-md-2 order-1">
@@ -749,14 +907,16 @@
                   <!-- Left: profile info -->
                   <div class="profile-info">
                     <!-- Profile Picture -->
-                    <label for="uploadProfilePic" class="profile-picture">
+                    <label for="uploadProfilePic" class="profile-picture {% if request.user == profile_user %}editable{% endif %}">
                       {% if profile.image and profile.image.url %}
                         <img src="{{ profile.image.url }}" alt="Profile Picture">
                       {% else %}
                         <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile">
                       {% endif %}
                     </label>
+                    {% if request.user == profile_user %}
                     <input type="file" id="uploadProfilePic" style="display:none;">
+                    {% endif %}
 
                     <div class="profile-details">
                       <h2>{{ profile_user.get_full_name|default:profile_user.username }}</h2>
@@ -930,6 +1090,23 @@
 </div>
 
 <script>
+  // --- Mobile sidebar toggle ---
+  const hamburgerMenu = document.querySelector('.hamburger-menu');
+  const sidebar = document.querySelector('.sidebar');
+  
+  hamburgerMenu.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+  
+  // Close sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        !hamburgerMenu.contains(e.target)) {
+      sidebar.classList.remove('active');
+    }
+  });
+
   // --- Modal JS ---
   function setupModal(openBtnId, modalId, closeBtnId){
     const modal = document.getElementById(modalId);
@@ -968,7 +1145,11 @@
   setupModal('openBioModalBtn','bioModal','closeBioModalBtn');
   setupModal('openPostModalBtn','postModal','closePostModalBtn');
   setupModal('openPostModalBtn2','postModal','closePostModalBtn');
+  
+  // Only setup profile picture modal if it's the user's own profile
+  {% if request.user == profile_user %}
   setupModal('uploadProfilePic','picUploadModal','closePicUploadModalBtn');
+  {% endif %}
 
   // --- Like button JS ---
   document.querySelectorAll('.like-btn').forEach(button => {
@@ -1035,6 +1216,7 @@
     });
   });
 
+
   // Add comment
   document.querySelectorAll('.comment-form').forEach(form => {
     form.addEventListener('submit', function(e){
@@ -1089,6 +1271,8 @@
         .catch(console.error);
     });
   });
+
+
 
   // Toggle post options menu
   document.querySelectorAll('.post-options-btn').forEach(btn => {
