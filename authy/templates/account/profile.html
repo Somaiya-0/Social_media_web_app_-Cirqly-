@@ -960,13 +960,13 @@
                   <!-- Left: profile info -->
                   <div class="profile-info">
                     <!-- Profile Picture -->
-                    <label for="uploadProfilePic" class="profile-picture {% if request.user == profile_user %}editable{% endif %}">
-                      {% if profile.image and profile.image.url %}
-                        <img src="{{ profile.image.url }}" alt="Profile Picture">
-                      {% else %}
-                        <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile">
-                      {% endif %}
-                    </label>
+                    <label id="uploadProfilePicTrigger" class="profile-picture {% if request.user == profile_user %}editable{% endif %}">
+    {% if profile.image and profile.image.url %}
+      <img src="{{ profile.image.url }}" alt="Profile Picture">
+    {% else %}
+      <img src="{% static 'profile_pics/default.jpg' %}" alt="Default Profile">
+    {% endif %}
+  </label>
                     {% if request.user == profile_user %}
                     <input type="file" id="uploadProfilePic" style="display:none;">
                     {% endif %}
@@ -1207,8 +1207,9 @@
   
   // Only setup profile picture modal if it's the user's own profile
   {% if request.user == profile_user %}
-  setupModal('uploadProfilePic','picUploadModal','closePicUploadModalBtn');
+  setupModal('uploadProfilePicTrigger','picUploadModal','closePicUploadModalBtn');
   {% endif %}
+
 
   // --- Like button JS ---
   document.querySelectorAll('.like-btn').forEach(button => {
