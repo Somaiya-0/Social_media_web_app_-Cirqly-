@@ -749,12 +749,7 @@
 </form>
 
     <div class="d-flex align-items-center gap-3 ms-auto">
-        <a class="nav-link" href="{% url 'notifications_view' %}">
-            <i class="bi bi-bell" style="font-size: 1.2rem; color: #6d3bd7;"></i>
-            {% if unread_count > 0 %}
-                <span class="badge bg-danger">{{ unread_count }}</span>
-            {% endif %}
-        </a>
+        
         
         {% if user.is_authenticated %}
             <span class="fw-semibold">{{ user.get_full_name|default:user.username }}</span>
@@ -784,6 +779,12 @@
                                 <i class="bi bi-person-circle me-2 icon-purple"></i> Profile
                             </a>
                             </li>
+                            <li class="list-group-item">
+                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
+                                    <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                </a>
+                                </li>
+                            
                         </ul>
                     </div>
                     <div class="mb-2 fw-semibold">Favorites</div>
