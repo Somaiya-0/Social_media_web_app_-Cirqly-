@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q  # Add this import
 import json
 from urllib.parse import urlparse
+from chat.models import Message 
 
 @login_required
 def home(request):
@@ -34,9 +35,11 @@ def home(request):
     
     following_list = Follow.objects.filter(follower=request.user).select_related('following')[:4]
 
+    
+
     context = {
         "posts": posts,
-        "unread_count": unread_count,
+        "unread_count": unread_count,  # notifications
         "following_users": following_users,   
         "following_list": following_list,
     }
@@ -158,6 +161,35 @@ def create_post(request):
        
     
     return redirect('profile', username=request.user.username)
+
+
+
+
+@login_required
+@csrf_exempt
+def edit_post(request):
+    if request.method == "POST":
+        post_id = request.POST.get("post_id")
+        content = request.POST.get("content", "").strip()
+        post_image = request.FILES.get("post_image")
+
+        post = get_object_or_404(Post, id=post_id, user=request.user)
+        post.content = content
+
+        if post_image:  # replace image if uploaded
+            post.post_image = post_image
+
+        post.save()
+
+        return JsonResponse({
+            "success": True,
+            "post_id": post.id,
+            "updated_content": post.content,
+            "updated_image": post.post_image.url if post.post_image else None
+        })
+
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 
 
 

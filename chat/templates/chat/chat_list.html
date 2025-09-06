@@ -123,6 +123,18 @@
         .sidebar .list-group-item:hover .bi {
             transform: scale(1.2);
         }
+        /* Small red dot */
+.notification-dot {
+    position: absolute;
+    top: 0;        /* aligns to top of the icon */
+    left: 12px;    /* adjust to sit on the corner of the bell */
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    border: 1.5px solid white; /* optional for better visibility */
+    z-index: 10;
+}
 
         .btn-logout {
             background-color: var(--primary-color);
@@ -529,9 +541,14 @@
                                     </a>
                                 </li>
                                 <li class="list-group-item">
-                                    <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
-                                        <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
-                                    </a>
+                                  <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark position-relative d-flex align-items-center">
+                                      <i class="bi bi-bell-fill me-2"></i>
+                                      <span class="list-group-text">Notifications</span>
+
+                                      {% if unread_count > 0 %}
+                                      <span class="notification-dot"></span>
+                                      {% endif %}
+                                  </a>
                                 </li>
                             </ul>
                         </div>

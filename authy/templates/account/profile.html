@@ -915,10 +915,12 @@
                                 </a>
                                 </li>
                                 <li class="list-group-item">
-                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
-                                    <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark position-relative d-flex align-items-center">
+                                    <i class="bi bi-bell-fill me-2"></i>
+                                    <span class="list-group-text">Notifications</span>
+
                                 </a>
-                                </li>
+                              </li>
                             </ul>
                         </div>
                         <div class="mb-2 " style="font-weight: 700;">Favorites</div>
@@ -1019,23 +1021,31 @@
                       </div>
 
                       <!-- Post Options (3 dots menu) -->
-                      {% if request.user == profile_user %}
-                      <div class="post-options">
-                        <button class="post-options-btn" data-post-id="{{ post.id }}">⋮</button>
-                        <div class="post-options-menu" id="post-options-{{ post.id }}">
-                          <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
+                      {% if request.user == post.user %}
+                        <div class="post-options">
+                            <button class="post-options-btn" data-post-id="{{ post.id }}">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <div class="post-options-menu" id="post-options-{{ post.id }}">
+                                <button class="edit-post-btn"
+                                        data-post-id="{{ post.id }}"
+                                        data-post-content="{{ post.content }}"
+                                        data-post-image="{% if post.post_image %}{{ post.post_image.url }}{% endif %}">
+                                    Edit
+                                </button>
+                                <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
+                            </div>
                         </div>
-                      </div>
-                      {% endif %}
+                        {% endif %}
                     </div>
 
                     <!-- Post Content -->
                     <div class="post-content">
-                      <p>{{ post.content }}</p>
+                      <p id="post-content-{{ post.id }}">{{ post.content }}</p>
                       {% if post.post_image %}
-                        <img src="{{ post.post_image.url }}" class="post-image">
+                          <img id="post-image-{{ post.id }}" src="{{ post.post_image.url }}" class="post-image" alt="Post Image">
                       {% endif %}
-                    </div>
+                  </div>
 
                     <!-- Post Actions -->
                     <div class="post-actions">
@@ -1152,51 +1162,86 @@
 </div>
 
 
+<!-- edit post modal -->
+<!-- edit post modal -->
+<div id="editPostModal" class="modal-overlay">
+  <div class="modal">
+    <h3>Edit Post</h3>
+    <form id="editPostForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <textarea id="editPostContent" name="content" rows="3" class="form-control mb-3"></textarea>
+
+      <div id="currentImageWrapper" class="mb-2 d-none">
+        <label class="form-label">Current Image:</label>
+        <img id="currentPostImage" src="" class="img-fluid rounded mb-2" style="max-height:200px;">
+      </div>
+
+      <label class="form-label">Change Image:</label>
+      <input type="file" class="form-control" id="editPostImage" name="post_image">
+
+      <input type="hidden" id="editPostId" name="post_id">
+
+      <div class="modal-buttons mt-3">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" id="closeEditPostBtn">Cancel</button>
+
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-  // --- Mobile sidebar toggle ---
+document.addEventListener("DOMContentLoaded", () => {
+  // ==========================
+  // Mobile sidebar toggle
+  // ==========================
   const hamburgerMenu = document.querySelector('.hamburger-menu');
   const sidebar = document.querySelector('.sidebar');
-  
+
   hamburgerMenu.addEventListener('click', () => {
     sidebar.classList.toggle('active');
   });
-  
-  // Close sidebar when clicking outside
+
   document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('active') && 
-        !sidebar.contains(e.target) && 
+    if (sidebar.classList.contains('active') &&
+        !sidebar.contains(e.target) &&
         !hamburgerMenu.contains(e.target)) {
       sidebar.classList.remove('active');
     }
   });
 
-  // --- Modal JS ---
-  function setupModal(openBtnId, modalId, closeBtnId){
+  // ==========================
+  // Generic modal setup
+  // ==========================
+  function setupModal(modalId, openBtnsSelector, closeBtnsSelector){
     const modal = document.getElementById(modalId);
-    const openBtn = document.getElementById(openBtnId);
-    const closeBtn = document.getElementById(closeBtnId);
+    const openBtns = document.querySelectorAll(openBtnsSelector);
+    const closeBtns = document.querySelectorAll(closeBtnsSelector);
 
-    if(openBtn){
-      openBtn.addEventListener('click', ()=> {
+    openBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
         modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        document.body.style.overflow = 'hidden';
       });
-    }
-    if(closeBtn){
-      closeBtn.addEventListener('click', ()=> {
-        modal.style.display = 'none';
-        document.body.style.overflow = ''; // Re-enable scrolling
-      });
-    }
+    });
 
-    window.addEventListener('click', (e)=> {
+    closeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Close modal on outside click
+    modal.addEventListener('click', (e) => {
       if(e.target === modal){
         modal.style.display = 'none';
         document.body.style.overflow = '';
       }
     });
 
-    window.addEventListener('keydown', (e)=>{
+    // Close modal on Escape
+    window.addEventListener('keydown', (e) => {
       if(e.key === 'Escape' && modal.style.display === 'flex'){
         modal.style.display = 'none';
         document.body.style.overflow = '';
@@ -1204,304 +1249,346 @@
     });
   }
 
+  // ==========================
   // Setup modals
-  setupModal('openBioModalBtn','bioModal','closeBioModalBtn');
-  setupModal('openPostModalBtn','postModal','closePostModalBtn');
-  setupModal('openPostModalBtn2','postModal','closePostModalBtn');
-  
-  // Only setup profile picture modal if it's the user's own profile
+  // ==========================
+  setupModal('bioModal', '#openBioModalBtn', '#closeBioModalBtn');
+  setupModal('postModal', '#openPostModalBtn, #openPostModalBtn2', '#closePostModalBtn');
   {% if request.user == profile_user %}
-  setupModal('uploadProfilePicTrigger','picUploadModal','closePicUploadModalBtn');
+  setupModal('picUploadModal', '#uploadProfilePicTrigger', '#closePicUploadModalBtn');
   {% endif %}
+  setupModal('deletePostModal', '.delete-post-btn', '#cancelDeletePostBtn');
 
-
-  // --- Like button JS ---
+  // ==========================
+  // Like buttons
+  // ==========================
   document.querySelectorAll('.like-btn').forEach(button => {
     button.addEventListener('click', function() {
-        const postId = this.dataset.postId;
-        this.classList.add('animating');
-        
-        fetch("{% url 'like_post' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'post_id=' + postId
-        })
-        .then(res => res.json())
-        .then(data => {
-            this.querySelector('.like-count').textContent = data.total_likes;
-            
-            if(data.liked){
-                this.classList.add('active');
-                // Create a heart animation
-                const heart = document.createElement('div');
-                heart.innerHTML = '❤️';
-                heart.style.position = 'absolute';
-                heart.style.fontSize = '20px';
-                heart.style.opacity = '0';
-                heart.style.transform = 'translateY(0)';
-                heart.style.transition = 'all 0.8s ease-out';
-                this.appendChild(heart);
-                
-                setTimeout(() => {
-                    heart.style.opacity = '1';
-                    heart.style.transform = 'translateY(-30px)';
-                }, 10);
-                
-                setTimeout(() => {
-                    heart.remove();
-                    this.classList.remove('animating');
-                }, 800);
-            } else {
-                this.classList.remove('active');
-                this.classList.remove('animating');
-            }
-        })
-        .catch(console.error);
-    });
-  });
+      const postId = this.dataset.postId;
+      this.classList.add('animating');
 
-  // Toggle comments section
-  document.querySelectorAll('.comment-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const postId = this.dataset.postId;
-        const commentsDiv = document.getElementById('comments-' + postId);
-        
-        if(commentsDiv.style.display === 'none' || !commentsDiv.style.display) {
-            commentsDiv.style.display = 'block';
-            this.classList.add('active');
-        } else {
-            commentsDiv.style.display = 'none';
-            this.classList.remove('active');
-        }
-    });
-  });
-
-
-  // Add comment
-  document.querySelectorAll('.comment-form').forEach(form => {
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
-        const postId = this.dataset.postId;
-        const input = this.querySelector('input[name="content"]');
-        const content = input.value.trim();
-        if(!content) return;
-
-        fetch("{% url 'add_comment' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'post_id=' + postId + '&content=' + encodeURIComponent(content)
-        })
-        .then(res => res.json())
-        .then(data => {
-            const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
-            
-            // Create new comment div with delete button
-            const commentDiv = document.createElement('div');
-            commentDiv.className = 'comment-item';
-            commentDiv.id = 'comment-' + data.comment_id;
-            commentDiv.style.opacity = '0';
-            
-            commentDiv.innerHTML = `
-                <img src="${data.user_profile_image}" class="comment-avatar">
-                <div class="comment-content">
-                    <button class="comment-delete-btn" data-comment-id="${data.comment_id}">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    <span class="fw-semibold">${data.username}</span>
-                    <div>${data.content}</div>
-                    <small class="text-muted">just now</small>
-                </div>
-            `;
-
-            commentsList.appendChild(commentDiv);
-            
-            // Add event listener to the new delete button
-            const deleteBtn = commentDiv.querySelector('.comment-delete-btn');
-            deleteBtn.addEventListener('click', function() {
-                const commentId = this.dataset.commentId;
-                deleteComment(commentId, postId);
-            });
-            
-            // Animate in the new comment
-            setTimeout(() => {
-                commentDiv.style.transition = 'opacity 0.3s ease';
-                commentDiv.style.opacity = '1';
-            }, 10);
-            
-            input.value = '';
-
-            // Update comment count
-            const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
-            if(commentCount) {
-                commentCount.textContent = data.total_comments;
-            }
-        })
-        .catch(console.error);
-    });
-  });
-
-  // Delete comment function
-  function deleteComment(commentId, postId) {
-    fetch("{% url 'delete_comment' %}", {
+      fetch("{% url 'like_post' %}", {
         method: 'POST',
         headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'comment_id=' + commentId
+        body: 'post_id=' + postId
+      })
+      .then(res => res.json())
+      .then(data => {
+        this.querySelector('.like-count').textContent = data.total_likes;
+
+        if(data.liked){
+          this.classList.add('active');
+          const heart = document.createElement('div');
+          heart.innerHTML = '❤️';
+          heart.style.position = 'absolute';
+          heart.style.fontSize = '20px';
+          heart.style.opacity = '0';
+          heart.style.transform = 'translateY(0)';
+          heart.style.transition = 'all 0.8s ease-out';
+          this.appendChild(heart);
+
+          setTimeout(() => { heart.style.opacity = '1'; heart.style.transform = 'translateY(-30px)'; }, 10);
+          setTimeout(() => { heart.remove(); this.classList.remove('animating'); }, 800);
+        } else {
+          this.classList.remove('active');
+          this.classList.remove('animating');
+        }
+      })
+      .catch(console.error);
+    });
+  });
+
+  // ==========================
+  // Comments toggle
+  // ==========================
+  document.querySelectorAll('.comment-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const postId = this.dataset.postId;
+      const commentsDiv = document.getElementById('comments-' + postId);
+
+      if(!commentsDiv.style.display || commentsDiv.style.display === 'none'){
+        commentsDiv.style.display = 'block';
+        this.classList.add('active');
+      } else {
+        commentsDiv.style.display = 'none';
+        this.classList.remove('active');
+      }
+    });
+  });
+
+  // ==========================
+  // Add comment
+  // ==========================
+  document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const postId = this.dataset.postId;
+      const input = this.querySelector('input[name="content"]');
+      const content = input.value.trim();
+      if(!content) return;
+
+      fetch("{% url 'add_comment' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'post_id=' + postId + '&content=' + encodeURIComponent(content)
+      })
+      .then(res => res.json())
+      .then(data => {
+        const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
+
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment-item';
+        commentDiv.id = 'comment-' + data.comment_id;
+        commentDiv.style.opacity = '0';
+        commentDiv.innerHTML = `
+          <img src="${data.user_profile_image}" class="comment-avatar">
+          <div class="comment-content">
+            <button class="comment-delete-btn" data-comment-id="${data.comment_id}">
+              <i class="bi bi-trash"></i>
+            </button>
+            <span class="fw-semibold">${data.username}</span>
+            <div>${data.content}</div>
+            <small class="text-muted">just now</small>
+          </div>
+        `;
+        commentsList.appendChild(commentDiv);
+
+        commentDiv.querySelector('.comment-delete-btn').addEventListener('click', function() {
+          deleteComment(data.comment_id, postId);
+        });
+
+        setTimeout(() => { commentDiv.style.transition = 'opacity 0.3s ease'; commentDiv.style.opacity = '1'; }, 10);
+        input.value = '';
+
+        const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+        if(commentCount) commentCount.textContent = data.total_comments;
+      })
+      .catch(console.error);
+    });
+  });
+
+  // ==========================
+  // Delete comment
+  // ==========================
+  function deleteComment(commentId, postId){
+    fetch("{% url 'delete_comment' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'comment_id=' + commentId
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            const commentDiv = document.getElementById('comment-' + commentId);
-            if (commentDiv) {
-                // Animate out before removing
-                commentDiv.style.transform = 'scale(0.9)';
-                commentDiv.style.opacity = '0';
-                commentDiv.style.transition = 'all 0.3s ease';
-                
-                setTimeout(() => {
-                    commentDiv.remove();
-                }, 300);
-            }
-            
-            // Update comment count
-            const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
-            if(commentCount) {
-                commentCount.textContent = data.total_comments;
-            }
+      if(data.success){
+        const commentDiv = document.getElementById('comment-' + commentId);
+        if(commentDiv){
+          commentDiv.style.transform = 'scale(0.9)';
+          commentDiv.style.opacity = '0';
+          commentDiv.style.transition = 'all 0.3s ease';
+          setTimeout(() => commentDiv.remove(), 300);
         }
+
+        const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+        if(commentCount) commentCount.textContent = data.total_comments;
+      }
     })
-    .catch(err => console.error(err));
+    .catch(console.error);
   }
 
-  // Add event listeners to existing comment delete buttons
   document.querySelectorAll('.comment-delete-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const commentId = this.dataset.commentId;
-        const postId = this.closest('.comments-section').previousElementSibling
-            .querySelector('.comment-btn').dataset.postId;
-        deleteComment(commentId, postId);
+    btn.addEventListener('click', function(){
+      const commentId = this.dataset.commentId;
+      const postId = this.closest('.comments-section').previousElementSibling.querySelector('.comment-btn').dataset.postId;
+      deleteComment(commentId, postId);
     });
   });
 
-  // Toggle post options menu
+  // ==========================
+  // Post options toggle
+  // ==========================
   document.querySelectorAll('.post-options-btn').forEach(btn => {
     btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        const postId = this.dataset.postId;
-        const menu = document.getElementById('post-options-' + postId);
-        
-        // Close any other open menus
-        document.querySelectorAll('.post-options-menu').forEach(m => {
-            if(m !== menu) m.style.display = 'none';
-        });
-        
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      e.stopPropagation();
+      const postId = this.dataset.postId;
+      const menu = document.getElementById('post-options-' + postId);
+
+      document.querySelectorAll('.post-options-menu').forEach(m => {
+        if(m !== menu) m.style.display = 'none';
+      });
+
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
     });
   });
 
-  // Close menus when clicking elsewhere
-  document.addEventListener('click', function() {
-    document.querySelectorAll('.post-options-menu').forEach(menu => {
-        menu.style.display = 'none';
-    });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.post-options-menu').forEach(menu => menu.style.display = 'none');
   });
 
-
-
-  // Post delete functionality
+  // ==========================
+  // Delete post
+  // ==========================
   let postToDelete = null;
-  const deleteModal = document.getElementById('deletePostModal');
-  const confirmDeleteBtn = document.getElementById('confirmDeletePostBtn');
-  const cancelDeleteBtn = document.getElementById('cancelDeletePostBtn');
+  const deleteModalEl = document.getElementById('deletePostModal');
+  const confirmDeleteBtnEl = document.getElementById('confirmDeletePostBtn');
+  const cancelDeleteBtnEl = document.getElementById('cancelDeletePostBtn');
 
-  // Open delete modal when clicking delete button
   document.querySelectorAll('.delete-post-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        postToDelete = this.dataset.postId;
-        deleteModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+    btn.addEventListener('click', function(){
+      postToDelete = this.dataset.postId;
+      deleteModalEl.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     });
   });
 
-  // Cancel deletion
-  cancelDeleteBtn.addEventListener('click', () => {
-    deleteModal.style.display = 'none';
+  cancelDeleteBtnEl.addEventListener('click', () => {
+    deleteModalEl.style.display = 'none';
     postToDelete = null;
     document.body.style.overflow = '';
   });
 
-  // Confirm deletion
-  confirmDeleteBtn.addEventListener('click', () => {
-    if (!postToDelete) return;
-
+  confirmDeleteBtnEl.addEventListener('click', () => {
+    if(!postToDelete) return;
     fetch("{% url 'delete_post' %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'post_id=' + postToDelete
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},
+      body: 'post_id=' + postToDelete
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            const postDiv = document.getElementById('post-' + postToDelete);
-            if (postDiv) {
-                // Animate out before removing
-                postDiv.style.transform = 'scale(0.9)';
-                postDiv.style.opacity = '0';
-                postDiv.style.transition = 'all 0.3s ease';
-                
-                setTimeout(() => {
-                    postDiv.remove();
-                    
-                    // Check if there are no more posts
-                    if (!document.querySelector('.post-card')) {
-                        document.querySelector('.posts-container').innerHTML = `
-                            <h3>Posts</h3>
-                            <div class="empty-state">
-                                <div>📝</div>
-                                <p>No posts yet.</p>
-                                {% if request.user == profile_user %}
-                                    <button id="openPostModalBtn2" class="btn btn-primary">Create your first post</button>
-                                {% endif %}
-                            </div>
-                        `;
-                        // Reattach event listener
-                        document.getElementById('openPostModalBtn2').addEventListener('click', () => {
-                            document.getElementById('postModal').style.display = 'flex';
-                        });
-                    }
-                }, 300);
-            }
+      if(data.success){
+        const postDiv = document.getElementById('post-' + postToDelete);
+        if(postDiv){
+          postDiv.style.transform = 'scale(0.9)';
+          postDiv.style.opacity = '0';
+          postDiv.style.transition = 'all 0.3s ease';
+          setTimeout(() => postDiv.remove(), 300);
         }
-        deleteModal.style.display = 'none';
-        postToDelete = null;
-        document.body.style.overflow = '';
+      }
+      deleteModalEl.style.display = 'none';
+      postToDelete = null;
+      document.body.style.overflow = '';
     })
-    .catch(err => console.error(err));
+    .catch(console.error);
   });
 
-  // Close modal when clicking outside
-  window.addEventListener('click', (e) => {
-    if (e.target === deleteModal) {
-        deleteModal.style.display = 'none';
-        postToDelete = null;
-        document.body.style.overflow = '';
+  // ==========================
+  // Edit post modal
+  // ==========================
+      const editModal = document.getElementById("editPostModal");
+    const editPostForm = document.getElementById("editPostForm");
+    const editPostContent = document.getElementById("editPostContent");
+    const editPostId = document.getElementById("editPostId");
+    const editPostImage = document.getElementById("editPostImage");
+    const currentImageWrapper = document.getElementById("currentImageWrapper");
+    const currentPostImage = document.getElementById("currentPostImage");
+
+    // --- Open modal and populate current data ---
+    document.addEventListener("click", (event) => {
+        const editBtn = event.target.closest(".edit-post-btn");
+        if (!editBtn) return;
+
+        event.preventDefault();
+        const postId = editBtn.dataset.postId;
+        const content = editBtn.dataset.postContent;
+        const image = editBtn.dataset.postImage;
+
+        editPostId.value = postId;
+        editPostContent.value = content;
+
+        if (image) {
+            currentImageWrapper.classList.remove("d-none");
+            currentPostImage.src = image;
+        } else {
+            currentImageWrapper.classList.add("d-none");
+            currentPostImage.src = "";
+        }
+
+        editModal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    });
+
+    // --- Close modal ---
+    function closeEditModal() {
+        editModal.style.display = "none";
+        document.body.style.overflow = "";
     }
-  });
+
+    // Close on button click
+    editModal.querySelectorAll(".btn-close, [data-bs-dismiss='modal']").forEach(btn => {
+        btn.addEventListener("click", closeEditModal);
+    });
+
+    // Close on clicking outside modal
+    window.addEventListener("click", (e) => {
+        if (e.target === editModal) closeEditModal();
+    });
+
+    // --- Submit edit post via AJAX ---
+    editPostForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Stop default form submission
+
+        const formData = new FormData(editPostForm);
+
+        try {
+            const res = await fetch("{% url 'edit_post' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}", // CSRF token header
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                // Update post content in DOM
+                const contentEl = document.getElementById(`post-content-${data.post_id}`);
+                if (contentEl) contentEl.textContent = data.updated_content;
+
+                // Update or add post image
+                const existingImg = document.getElementById(`post-image-${data.post_id}`);
+                if (data.updated_image) {
+                    if (existingImg) existingImg.src = data.updated_image;
+                    else {
+                        const newImg = document.createElement("img");
+                        newImg.id = `post-image-${data.post_id}`;
+                        newImg.src = data.updated_image;
+                        newImg.classList.add("post-image");
+                        document.querySelector(`#post-${data.post_id} .post-content`).appendChild(newImg);
+                    }
+                } else if (existingImg) {
+                    existingImg.remove();
+                }
+
+                // Close modal
+                closeEditModal();
+
+                // Close 3-dot menu if open
+                const menu = document.getElementById(`post-options-${data.post_id}`);
+                if (menu) menu.style.display = "none";
+            } else {
+                alert(data.error || "Something went wrong while editing post.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Failed to edit post due to network or server error.");
+        }
+    });
+
+
+});
 </script>
+
 
 {% endblock %}

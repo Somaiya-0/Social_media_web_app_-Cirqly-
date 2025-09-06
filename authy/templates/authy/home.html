@@ -59,43 +59,74 @@
         }
 
         /* Sidebar enhancements */
-        .sidebar, .rightbar {
-            border-radius: 20px;
-            margin-top: 1.5rem;
-            padding: 2rem 1rem;
-            margin: 0 !important;
-            position: fixed;
-            top: 70px; 
-            height: calc(100vh - 70px);
-            overflow-y: auto;
-            max-height: none;
-            z-index: 1020;
-            background: var(--card-bg);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
+        .sidebar {
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    position: fixed;
+    top: 70px; 
+    left: 0;
+    width: 25%;
+    max-width: 320px;
+    min-width: 240px;
+    height: calc(100vh - 70px);
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.sidebar-content {
+    overflow-y: auto;
+    padding: 2rem 1rem; /* same as sidebar padding */
+    flex-grow: 1; /* fill remaining space */
+}
+
+/* Small red dot */
+.notification-dot {
+    position: absolute;
+    top: 0;        /* aligns to top of the icon */
+    left: 12px;    /* adjust to sit on the corner of the bell */
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    border: 1.5px solid white; /* optional for better visibility */
+    z-index: 10;
+}
+
+
+/* Fix for following list alignment */
+  .following-list-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.6rem 1rem !important;
+  }
+
+  .group-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .following-username {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+.sidebar-bottom {
+    padding: 1rem; /* optional padding */
+}
 
         .sidebar:hover, .rightbar:hover {
             box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
-        .sidebar {
-            left: 0;
-            width: 25%;
-            max-width: 320px;
-            min-width: 240px;
-            transform: translateX(0);
-            animation: slideInLeft 0.5s ease;
-        }
+        
 
-        .rightbar {
-            right: 0;
-            width: 25%;
-            max-width: 320px;
-            min-width: 240px;
-            transform: translateX(0);
-            animation: slideInRight 0.5s ease;
-        }
+
 
         /* Main content area */
         .main-content {
@@ -309,6 +340,7 @@
             margin-bottom: 12px;
             gap: 10px;
             animation: fadeIn 0.3s ease;
+            position: relative;
         }
 
         .comment-avatar {
@@ -326,6 +358,7 @@
             border-radius: 18px;
             max-width: 90%;
             flex-grow: 1;
+            position: relative;
         }
 
         .comment-content .fw-semibold {
@@ -368,6 +401,28 @@
         .comment-form button:hover {
             background: var(--primary-hover);
             transform: translateY(-2px);
+        }
+        
+
+          .comment-delete-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .comment-item:hover .comment-delete-btn {
+            opacity: 1;
+        }
+
+        .comment-delete-btn:hover {
+            color: #ff4d4d;
         }
 
         /* --- Empty state --- */
@@ -439,8 +494,10 @@
             align-items: center;
             justify-content: center;
             gap: .5rem;
-            padding: 0.8rem;
+            padding: 0.6rem;
             transition: var(--transition);
+            margin-bottom: 30px;
+            
         }
 
         .btn-logout:hover {
@@ -802,8 +859,8 @@
     <div class="row g-4 flex-wrap">
         <div class="col-lg-3 col-md-4 col-12 order-lg-1 order-md-1 order-2">
             <div class="sidebar mb-0 h-100 d-flex flex-column">
-                <div>
-                    <div class="mb-4">
+                <div class="sidebar-content">
+                    <div class="mb-4" style="margin-top: 15px;">
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><a href="{% url 'home' %}" class="text-decoration-none text-dark"><i class="bi bi-house-door-fill me-2"></i> Home</a></li>
                             <li class="list-group-item">
@@ -812,20 +869,27 @@
                             </a>
                             </li>
                             <li class="list-group-item">
-                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark">
-                                    <i class="bi bi-bell-fill me-2"></i> <span class="list-group-text">Notifications</span>
+                                <a href="{% url 'notifications_view' %}" class="text-decoration-none text-dark position-relative d-flex align-items-center">
+                                    <i class="bi bi-bell-fill me-2"></i>
+                                    <span class="list-group-text">Notifications</span>
+
+                                    {% if unread_count > 0 %}
+                                    <span class="notification-dot"></span>
+                                    {% endif %}
                                 </a>
-                                </li>
+                            </li>
                             
                         </ul>
                     </div>
                     <div class="mb-2 fw-semibold">Favorites</div>
                     <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item">
-                            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
-                                <i class="bi bi-chat-dots-fill me-2"></i>Message
+                        <li class="list-group-item position-relative">
+                            <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark d-flex align-items-center">
+                                <i class="bi bi-chat-dots-fill me-2"></i> Message
+                                
                             </a>
                         </li>
+
                     </ul>
                     <div class="mb-2 fw-semibold">Following</div>
                 <ul class="list-group list-group-flush">
@@ -842,15 +906,16 @@
                     {% endfor %}
                 </ul>
 
-                <div class="sidebar-bottom mt-4">
-                    <form action="{% url 'logout_confirm' %}" method="get">
-                        <button type="submit" class="btn btn-logout">
-                            
-                            <span>Log Out</span>
-                        </button>
-                    </form>
-                </div>
+                
             </div>
+            <div class="sidebar-bottom mt-4" style="margin-top: auto;margin-bottom: 40px;">
+                        <form action="{% url 'logout_confirm' %}" method="get">
+                            <button type="submit" class="btn btn-logout">
+                                
+                                <span>Log Out</span>
+                            </button>
+                        </form>
+                </div>
         </div>
     
     </div>
@@ -896,30 +961,46 @@
                 {% for post in posts %}
                 <div id="post-{{ post.id }}" class="post-card">
                     <div class="post-header">
-                        {% if post.user.profile.image %}
-                            <img src="{{ post.user.profile.image.url }}" alt="Profile">
-                        {% else %}
-                            <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile">
-                        {% endif %}
+                        
+                        <a href="{% url 'profile' post.user.username %}">
+                            {% if post.user.profile.image %}
+                                <img src="{{ post.user.profile.image.url }}" alt="Profile">
+                            {% else %}
+                                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile">
+                            {% endif %}
+                        </a>
                         <div class="post-user-info">
-                            <strong>{{ post.user.username }}</strong><br>
-                            <small>{{ post.created_at|date:"M d, Y H:i" }}</small>
+                            <a href="{% url 'profile' post.user.username %}" class="fw-semibold text-decoration-none" style="color: var(--primary-color);">
+                                {{ post.user.get_full_name|default:post.user.username }}
+                            </a><br>
+                            <small class="text-muted">{{ post.created_at|date:"M d, Y H:i" }}</small>
                         </div>
+
+
 
                         {% if request.user == post.user %}
                         <div class="post-options">
-                            <button class="post-options-btn" data-post-id="{{ post.id }}"><i class="bi bi-three-dots"></i></button>
+                            <button class="post-options-btn" data-post-id="{{ post.id }}">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
                             <div class="post-options-menu" id="post-options-{{ post.id }}">
+                                <button class="edit-post-btn"
+                                        data-post-id="{{ post.id }}"
+                                        data-post-content="{{ post.content }}"
+                                        data-post-image="{% if post.post_image %}{{ post.post_image.url }}{% endif %}">
+                                    Edit
+                                </button>
                                 <button class="delete-post-btn" data-post-id="{{ post.id }}">Delete</button>
                             </div>
                         </div>
                         {% endif %}
+
                     </div>
 
                     <div class="post-content">
-                        <p>{{ post.content }}</p>
+                        <p id="post-content-{{ post.id }}">{{ post.content }}</p>
                         {% if post.post_image %}
-                            <img src="{{ post.post_image.url }}" class="post-image" alt="Post Image">
+                            <img id="post-image-{{ post.id }}" src="{{ post.post_image.url }}" class="post-image" alt="Post Image">
                         {% endif %}
                     </div>
 
@@ -946,22 +1027,32 @@
                     <!-- Full comments section (hidden initially) -->
                     <div class="comments-section" id="comments-{{ post.id }}">
                       <div class="comments-list">
-                        {% for comment in post.comments.all %}
-                         <div class="comment-item" id="comment-{{ comment.id }}">
-                            <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
-                            <div class="comment-content">
-                              {% if comment.user == request.user %}
-                              <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
-                                <i class="bi bi-trash"></i>
-                              </button>
-                              {% endif %}
-                              <span class="fw-semibold">{{ comment.user.username }}</span>
-                              <div>{{ comment.content }}</div>
-                              <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-                            </div>
-                          </div>
-                        {% endfor %}
-                      </div>
+    {% for comment in post.comments.all %}
+    <div class="comment-item" id="comment-{{ comment.id }}">
+        <!-- Avatar clickable -->
+        <a href="{% url 'profile' comment.user.username %}">
+            <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
+        </a>
+        
+        <div class="comment-content">
+            {% if comment.user == request.user %}
+            <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
+                <i class="bi bi-trash"></i>
+            </button>
+            {% endif %}
+
+            <!-- Name clickable -->
+            <a href="{% url 'profile' comment.user.username %}" class="fw-semibold text-decoration-none" style="color: var(--primary-color);">
+                {{ comment.user.get_full_name|default:comment.user.username }}
+            </a>
+
+            <div>{{ comment.content }}</div>
+            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 
                       <!-- Add comment form -->
                       <form class="comment-form" data-post-id="{{ post.id }}">
@@ -990,6 +1081,7 @@
     </div>
 </div>
 
+<!-- Delete post modal -->
 <div id="deletePostModal" class="modal-overlay">
     <div class="custome-modal">
         <h3>Delete Post?</h3>
@@ -999,6 +1091,38 @@
             <button id="cancelDeletePostBtn" class="btn btn-secondary">Cancel</button>
         </div>
     </div>
+</div>
+
+<!-- edit post modal -->
+<div class="modal fade" id="editPostModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="editPostForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Post</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control mb-3" id="editPostContent" name="content" rows="3"></textarea>
+
+          <div id="currentImageWrapper" class="mb-2 d-none">
+            <label class="form-label">Current Image:</label>
+            <img id="currentPostImage" src="" class="img-fluid rounded mb-2" style="max-height:200px;">
+          </div>
+
+          <label class="form-label">Change Image:</label>
+          <input type="file" class="form-control" id="editPostImage" name="post_image">
+
+          <input type="hidden" id="editPostId" name="post_id">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -1196,107 +1320,137 @@ document.addEventListener('click', e => {
     });
   });
 
-   // Handle comment button clicks (toggle comment section)
-document.addEventListener('click', (event) => {
-    const commentBtn = event.target.closest('.comment-btn');
-    if (commentBtn) {
-        event.preventDefault();
-        const postId = commentBtn.dataset.postId;
-        const commentsSection = document.getElementById(`comments-${postId}`);
-        commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
-    }
-});
-
-// Handle comment form submission
-document.addEventListener('submit', async (event) => {
-    const commentForm = event.target.closest('.comment-form');
-    if (commentForm) {
-        event.preventDefault();
-        const postId = commentForm.dataset.postId;
-        const contentInput = commentForm.querySelector('input[name="content"]');
-        const content = contentInput.value.trim();
-        if (!content) return;
-
-        try {
-            const response = await fetch("{% url 'add_comment' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `post_id=${postId}&content=${encodeURIComponent(content)}`
-            });
-
-            if (response.ok) {
-                const newComment = await response.json();
-                const commentsList = document.querySelector(`#comments-${postId} .comments-list`);
-                const commentCountSpan = document.querySelector(`#post-${postId} .comment-count`);
-
-                const commentHtml = `
-                    <div class="comment-item">
-                        <img src="${newComment.user_profile_image}" class="comment-avatar" alt="Commenter Avatar">
-                        <div class="comment-content">
-                            <span class="fw-semibold">${newComment.username}</span>
-                            <div>${newComment.content}</div>
-                            <small class="text-muted">Just now</small>
-                        </div>
-                    </div>
-                `;
-                commentsList.insertAdjacentHTML('afterbegin', commentHtml);
-                contentInput.value = '';
-                commentCountSpan.textContent = parseInt(commentCountSpan.textContent) + 1;
-            }
-        } catch (error) {
-            console.error('Error submitting comment:', error);
+   // Toggle comments section
+  document.querySelectorAll('.comment-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        const commentsDiv = document.getElementById('comments-' + postId);
+        
+        if(commentsDiv.style.display === 'none' || !commentsDiv.style.display) {
+            commentsDiv.style.display = 'block';
+            this.classList.add('active');
+        } else {
+            commentsDiv.style.display = 'none';
+            this.classList.remove('active');
         }
-    }
-});
+    });
+  });
 
-// Handle comment delete button clicks
-document.addEventListener('click', async (event) => {
-    const deleteBtn = event.target.closest('.delete-comment-btn');
-    if (deleteBtn) {
-        event.preventDefault();
-        const commentId = deleteBtn.dataset.commentId;
-        const postId = deleteBtn.dataset.postId; // optional, for updating count
 
-        if (!commentId) return;
+  // Add comment
+  document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const postId = this.dataset.postId;
+        const input = this.querySelector('input[name="content"]');
+        const content = input.value.trim();
+        if(!content) return;
 
-        if (!confirm("Are you sure you want to delete this comment?")) return;
+        fetch("{% url 'add_comment' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'post_id=' + postId + '&content=' + encodeURIComponent(content)
+        })
+        .then(res => res.json())
+        .then(data => {
+            const commentsList = document.querySelector('#comments-' + postId + ' .comments-list');
+            
+            // Create new comment div with delete button
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.id = 'comment-' + data.comment_id;
+            commentDiv.style.opacity = '0';
+            
+            commentDiv.innerHTML = `
+                <img src="${data.user_profile_image}" class="comment-avatar">
+                <div class="comment-content">
+                    <button class="comment-delete-btn" data-comment-id="${data.comment_id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <span class="fw-semibold">${data.username}</span>
+                    <div>${data.content}</div>
+                    <small class="text-muted">just now</small>
+                </div>
+            `;
 
-        try {
-            const response = await fetch("{% url 'delete_comment' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `comment_id=${commentId}`
+            commentsList.appendChild(commentDiv);
+            
+            // Add event listener to the new delete button
+            const deleteBtn = commentDiv.querySelector('.comment-delete-btn');
+            deleteBtn.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                deleteComment(commentId, postId);
             });
+            
+            // Animate in the new comment
+            setTimeout(() => {
+                commentDiv.style.transition = 'opacity 0.3s ease';
+                commentDiv.style.opacity = '1';
+            }, 10);
+            
+            input.value = '';
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    // Remove comment from DOM
-                    const commentItem = deleteBtn.closest('.comment-item');
-                    if (commentItem) commentItem.remove();
-
-                    // Update comment count
-                    if (postId) {
-                        const commentCountSpan = document.querySelector(`#post-${postId} .comment-count`);
-                        if (commentCountSpan) {
-                            commentCountSpan.textContent = parseInt(commentCountSpan.textContent) - 1;
-                        }
-                    }
-                } else {
-                    alert(data.error || "Failed to delete comment.");
-                }
+            // Update comment count
+            const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+            if(commentCount) {
+                commentCount.textContent = data.total_comments;
             }
-        } catch (error) {
-            console.error('Error deleting comment:', error);
+        })
+        .catch(console.error);
+    });
+  });
+
+  // Delete comment function
+  function deleteComment(commentId, postId) {
+    fetch("{% url 'delete_comment' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'comment_id=' + commentId
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const commentDiv = document.getElementById('comment-' + commentId);
+            if (commentDiv) {
+                // Animate out before removing
+                commentDiv.style.transform = 'scale(0.9)';
+                commentDiv.style.opacity = '0';
+                commentDiv.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    commentDiv.remove();
+                }, 300);
+            }
+            
+            // Update comment count
+            const commentCount = document.querySelector(`.comment-btn[data-post-id="${postId}"] .comment-count`);
+            if(commentCount) {
+                commentCount.textContent = data.total_comments;
+            }
         }
-    }
-});
+    })
+    .catch(err => console.error(err));
+  }
+
+  // Add event listeners to existing comment delete buttons
+  document.querySelectorAll('.comment-delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const postId = this.closest('.comments-section').previousElementSibling
+            .querySelector('.comment-btn').dataset.postId;
+        deleteComment(commentId, postId);
+    });
+  });
+
+
 
     // Handle delete post logic
     let postToDeleteId = null;
@@ -1364,6 +1518,101 @@ document.addEventListener('click', async (event) => {
             postToDeleteId = null;
         }
     });
+
+        // ==========================
+    // Edit post logic
+    // ==========================
+
+    const editModal = document.getElementById("editPostModal");
+    const editPostForm = document.getElementById("editPostForm");
+    const editPostContent = document.getElementById("editPostContent");
+    const editPostId = document.getElementById("editPostId");
+    const editPostImage = document.getElementById("editPostImage");
+    const currentImageWrapper = document.getElementById("currentImageWrapper");
+    const currentPostImage = document.getElementById("currentPostImage");
+
+    // Open modal with current data
+    document.addEventListener("click", (event) => {
+        const editBtn = event.target.closest(".edit-post-btn");
+        if (editBtn) {
+            event.preventDefault();
+            const postId = editBtn.dataset.postId;
+            const content = editBtn.dataset.postContent;
+            const image = editBtn.dataset.postImage;
+
+            editPostId.value = postId;
+            editPostContent.value = content;
+
+            if (image) {
+                currentImageWrapper.classList.remove("d-none");
+                currentPostImage.src = image;
+            } else {
+                currentImageWrapper.classList.add("d-none");
+                currentPostImage.src = "";
+            }
+
+            new bootstrap.Modal(editModal).show();
+        }
+    });
+
+    // Handle form submission
+    editPostForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(editPostForm);
+
+        try {
+            const response = await fetch("{% url 'edit_post' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+    // Update text in DOM
+    const contentEl = document.getElementById(`post-content-${data.post_id}`);
+    if (contentEl) {
+        contentEl.textContent = data.updated_content;
+    }
+
+    // Update image in DOM
+    const existingImg = document.getElementById(`post-image-${data.post_id}`);
+    if (data.updated_image) {
+        if (existingImg) {
+            existingImg.src = data.updated_image; // update existing img
+        } else {
+            const newImg = document.createElement("img");
+            newImg.id = `post-image-${data.post_id}`;
+            newImg.src = data.updated_image;
+            newImg.classList.add("post-image");
+            document.querySelector(`#post-${data.post_id} .post-content`).appendChild(newImg);
+        }
+    } else {
+        // If no image anymore, remove it
+        if (existingImg) {
+            existingImg.remove();
+        }
+    }
+
+    // Hide modal
+    bootstrap.Modal.getInstance(editModal).hide();
+
+    // ✅ Auto-close the 3-dot menu too
+    const menu = document.getElementById(`post-options-${data.post_id}`);
+    if (menu) menu.style.display = "none";
+}
+ else {
+                alert(data.error || "Something went wrong.");
+            }
+        } catch (err) {
+            console.error("Error editing post:", err);
+            alert("Failed to edit post.");
+        }
+    });
+
    
 </script>
 </body>
