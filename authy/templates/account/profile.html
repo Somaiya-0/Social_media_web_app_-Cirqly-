@@ -1054,18 +1054,18 @@
                       <div class="comments-list">
                         {% for comment in post.comments.all %}
                          <div class="comment-item" id="comment-{{ comment.id }}">
-      <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
-      <div class="comment-content">
-        {% if comment.user == request.user %}
-        <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
-          <i class="bi bi-trash"></i>
-        </button>
-        {% endif %}
-        <span class="fw-semibold">{{ comment.user.username }}</span>
-        <div>{{ comment.content }}</div>
-        <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-      </div>
-    </div>
+                            <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
+                            <div class="comment-content">
+                              {% if comment.user == request.user %}
+                              <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                              {% endif %}
+                              <span class="fw-semibold">{{ comment.user.username }}</span>
+                              <div>{{ comment.content }}</div>
+                              <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                            </div>
+                          </div>
                         {% endfor %}
                       </div>
 
