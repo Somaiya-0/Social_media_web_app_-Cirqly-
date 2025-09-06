@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %} 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -973,9 +974,10 @@
                             <a href="{% url 'profile' post.user.username %}" class="fw-semibold text-decoration-none" style="color: var(--primary-color);">
                                 {{ post.user.get_full_name|default:post.user.username }}
                             </a><br>
-                            <small class="text-muted">{{ post.created_at|date:"M d, Y H:i" }}</small>
+                            <small class="text-muted">
+                                {{ post.created_at|localtime|date:"M d, Y H:i" }}
+                            </small>
                         </div>
-
 
 
                         {% if request.user == post.user %}

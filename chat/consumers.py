@@ -13,7 +13,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.personal_group_name = f"user_{self.user.id}"
         await self.channel_layer.group_add(self.personal_group_name, self.channel_name)
 
-        # Room socket if joining a chat room
+        # Room channel if joining a chat room
         self.room_name = self.scope["url_route"]["kwargs"].get("room_name")
         if self.room_name:
             self.room_group_name = f"chat_{self.room_name}"
@@ -37,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         sender = self.user
 
-        # Compute receiver from room_name
+        # Determine the receiver from room_name
         if not self.room_name:
             return
         user_ids = [int(x) for x in self.room_name.split("_")]
@@ -47,22 +47,33 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Save message
         await self.save_message(sender, receiver, message)
 
-        event = {
+        # --- Send message to chat room only ---
+        room_event = {
             "type": "chat_message",
             "message": message,
             "username": sender.username,
             "sender_id": sender.id,
             "receiver_id": receiver.id,
         }
-
-        # Send to correct room for chat log
         correct_room = f"chat_{min(sender.id, receiver.id)}_{max(sender.id, receiver.id)}"
-        await self.channel_layer.group_send(correct_room, event)
+        await self.channel_layer.group_send(correct_room, room_event)
 
-        # Send to receiver personal group for sidebar update
-        await self.channel_layer.group_send(f"user_{receiver.id}", event)
+        # --- Send sidebar update only ---
+        sidebar_event = {
+            "type": "sidebar_update",
+            "message": message,
+            "sender_id": sender.id,
+            "receiver_id": receiver.id,
+            "username": sender.username,
+        }
+        await self.channel_layer.group_send(f"user_{receiver.id}", sidebar_event)
 
+    # --- Handle chat log messages ---
     async def chat_message(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    # --- Handle sidebar updates ---
+    async def sidebar_update(self, event):
         await self.send(text_data=json.dumps(event))
 
     @database_sync_to_async

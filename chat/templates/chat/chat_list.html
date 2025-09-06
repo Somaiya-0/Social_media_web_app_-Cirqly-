@@ -650,27 +650,8 @@
     </div>
 </div>
 <script>
-
-    // --- Sidebar toggle ---
-    const hamburgerMenu = document.querySelector('.hamburger-menu');
-    const sidebar = document.querySelector('.sidebar');
-
-    hamburgerMenu.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-        hamburgerMenu.style.display = sidebar.classList.contains('active') ? 'none' : 'block';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (sidebar.classList.contains('active') &&
-            !sidebar.contains(e.target) &&
-            !hamburgerMenu.contains(e.target)) {
-            sidebar.classList.remove('active');
-            hamburgerMenu.style.display = 'block';
-        }
-    });
-
 document.addEventListener('DOMContentLoaded', function() {
-    
+
     // --- DOM elements ---
     const chatLog = document.getElementById('chat-log');
     const chatForm = document.getElementById('chat-form');
@@ -717,7 +698,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Open chat room ---
     function openChat(link) {
         const userId = parseInt(link.dataset.userId);
-        if (activeUserId === userId) return;
+        if (activeUserId === userId) return; // Already open
+
+        // Close previous room socket
+        if (roomSocket) {
+            roomSocket.close();
+            roomSocket = null;
+        }
 
         // Remove active from all links
         document.querySelectorAll('.chat-link').forEach(l => l.classList.remove('active'));
@@ -727,8 +714,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chatHeader.textContent = 'Chat with ' + link.querySelector('.username').textContent;
         chatLog.innerHTML = '';
-
-        if (roomSocket) roomSocket.close();
 
         // Load messages via AJAX
         fetch(`/chat/chat/${userId}/?ajax=1`)
@@ -749,20 +734,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         roomSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            if (data.type !== "chat_message") return;
 
-            // Only append to chat log if relevant to this room
+            // Only append messages relevant to this chat
             const relevant = (data.sender_id === activeUserId && data.receiver_id === currentUserId) ||
                              (data.sender_id === currentUserId && data.receiver_id === activeUserId);
+            if (!relevant) return;
 
-            if (relevant) {
-                const div = document.createElement('div');
-                div.className = 'message ' + (data.username === currentUsername ? 'me' : 'other');
-                div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
-                chatLog.appendChild(div);
-                chatLog.scrollTop = chatLog.scrollHeight;
+            const div = document.createElement('div');
+            div.className = 'message ' + (data.sender_id === currentUserId ? 'me' : 'other');
+            div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
+            chatLog.appendChild(div);
+            chatLog.scrollTop = chatLog.scrollHeight;
 
-                updateChatListOrder(data.sender_id === currentUserId ? activeUserId : data.sender_id, data.message);
-            }
+            updateChatListOrder(data.sender_id === currentUserId ? activeUserId : data.sender_id, data.message);
         };
 
         roomSocket.onclose = function() {
@@ -770,10 +755,16 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // --- Attach click listeners to existing links ---
-    document.querySelectorAll('.chat-link').forEach(link => {
-        link.addEventListener('click', () => openChat(link));
-    });
+    // --- Attach click handlers (once) ---
+    function attachChatLinkClickHandlers() {
+        document.querySelectorAll('.chat-link').forEach(link => {
+            if (!link.dataset.listenerAttached) {
+                link.addEventListener('click', () => openChat(link));
+                link.dataset.listenerAttached = "true";
+            }
+        });
+    }
+    attachChatLinkClickHandlers();
 
     // --- Send message ---
     chatForm.addEventListener('submit', function(e) {
@@ -783,22 +774,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = chatInput.value.trim();
         if (!message) return;
 
+        // Only send — do not append manually
         roomSocket.send(JSON.stringify({ message }));
-        updateChatListOrder(activeUserId, message);
 
         chatInput.value = '';
         chatInput.focus();
     });
 
-    // --- Personal socket for sidebar updates ---
-    const personalSocket = new WebSocket(`${protocol}//${host}/ws/chat/user_${currentUserId}/`);
+    // --- Personal socket (sidebar updates) ---
+    if (!window.personalSocket) {
+        window.personalSocket = new WebSocket(`${protocol}//${host}/ws/chat/user_${currentUserId}/`);
+    }
+    const personalSocket = window.personalSocket;
+
     personalSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        // Only update sidebar, never chat log
-        if (data.sender_id !== currentUserId) {
-            updateChatListOrder(data.sender_id, data.message);
+        if (data.type !== "sidebar_update") return; // Only handle sidebar
+
+        const link = document.querySelector(`.chat-link[data-user-id="${data.sender_id}"]`);
+        if (link) {
+            link.querySelector('.last-message').textContent = data.message;
+            link.querySelector('.message-time').textContent = Math.floor(Date.now() / 1000);
+
+            const chatItem = link.closest('li');
+            chatItem.remove();
+            chatList.prepend(chatItem);
         }
     };
+
     personalSocket.onclose = function() {
         console.warn('Personal socket closed.');
     };
@@ -824,14 +827,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 chatList.appendChild(li);
-                li.querySelector(".chat-link").addEventListener('click', () => openChat(li.querySelector(".chat-link")));
             });
+
+            // Re-attach click handlers after search
+            attachChatLinkClickHandlers();
         } catch(err) {
             console.error(err);
         }
     });
+
+    // --- Sidebar toggle ---
+    const hamburgerMenu = document.querySelector('.hamburger-menu');
+    const sidebar = document.querySelector('.sidebar');
+
+    hamburgerMenu.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        hamburgerMenu.style.display = sidebar.classList.contains('active') ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('active') &&
+            !sidebar.contains(e.target) &&
+            !hamburgerMenu.contains(e.target)) {
+            sidebar.classList.remove('active');
+            hamburgerMenu.style.display = 'block';
+        }
+    });
+
 });
 </script>
+
+
 
 </body>
 </html>
