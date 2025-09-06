@@ -656,8 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatHeader = document.querySelector('.chat-room-header');
-    const chatList = document.querySelector('.chat-list');
-    const searchInput = document.getElementById("chat-search-input");
+    const chatLinks = document.querySelectorAll('.chat-link');
 
     const currentUsername = "{{ request.user.username|escapejs }}";
     const currentUserId = parseInt("{{ request.user.id }}");
@@ -665,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const host = window.location.host;
 
     let activeUserId = null;
+    let activeChatLink = null;
     let roomSocket = null;
 
     function escapeHtml(unsafe) {
@@ -675,84 +675,120 @@ document.addEventListener('DOMContentLoaded', function() {
                      .replace(/'/g, "&#039;");
     }
 
-    function updateChatList(userId, message) {
+    function updateChatListOrder(userId, message) {
         const link = document.querySelector(`.chat-link[data-user-id="${userId}"]`);
-        if (!link) return;
+        if (link) {
+            const currentTime = Math.floor(Date.now() / 1000);
+            link.querySelector('.last-message').textContent = message;
+            link.querySelector('.message-time').textContent = currentTime;
 
-        link.querySelector('.last-message').textContent = message;
-        link.querySelector('.message-time').textContent = Math.floor(Date.now() / 1000);
+            const chatItem = link.closest('li');
+            const chatList = document.querySelector('.chat-list');
+            chatItem.remove();
+            chatList.prepend(chatItem);
 
-        const chatItem = link.closest('li');
-        chatList.prepend(chatItem);
-
-        if (activeUserId !== userId) {
-            link.classList.add('new-message');
-            setTimeout(() => link.classList.remove('new-message'), 2000);
+            if (activeUserId !== userId) {
+                link.classList.add('new-message');
+                setTimeout(() => link.classList.remove('new-message'), 2000);
+            }
         }
     }
 
-    // Open chat room function (used by clicks and search results)
-    async function openChat(event) {
-        const link = event.currentTarget;
-        const userId = parseInt(link.dataset.userId);
-        if (activeUserId === userId) return;
+    // -------------------------------
+    // Personal socket for sidebar updates
+    // -------------------------------
+    const personalSocket = new WebSocket(`${protocol}//${host}/ws/chat/user_${currentUserId}/`);
 
-        activeUserId = userId;
-        chatHeader.textContent = 'Chat with ' + link.querySelector('.username').textContent;
-        chatLog.innerHTML = '';
+    personalSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
 
-        // Remove active from all
-        document.querySelectorAll('.chat-link').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
+        // Only update sidebar, never chat log
+        if (data.sender_id !== currentUserId) {
+            updateChatListOrder(data.sender_id, data.message);
+        }
+    };
 
-        // Close previous socket
-        if (roomSocket) roomSocket.close();
+    // -------------------------------
+    // Room sockets for chat logs
+    // -------------------------------
+    chatLinks.forEach(link => {
+        link.addEventListener('click', async () => {
+            const userId = parseInt(link.dataset.userId);
+            if (activeUserId === userId) return;
 
-        // Load messages via AJAX
-        try {
-            const res = await fetch(`/chat/chat/${userId}/?ajax=1`);
-            const messages = await res.json();
-            messages.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'message ' + (m.sender === currentUsername ? 'me' : 'other');
-                div.innerHTML = `<b>${escapeHtml(m.sender)}:</b> ${escapeHtml(m.text)}`;
-                chatLog.appendChild(div);
-            });
-            chatLog.scrollTop = chatLog.scrollHeight;
-        } catch(err) { console.error(err); }
+            // Remove active
+            document.querySelectorAll('.chat-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            activeUserId = userId;
+            activeChatLink = link;
 
-        // Open WebSocket
-        const roomName = [currentUserId, userId].sort((a,b) => a-b).join('_');
-        roomSocket = new WebSocket(`${protocol}//${host}/ws/chat/${roomName}/`);
+            chatHeader.textContent = 'Chat with ' + link.querySelector('.username').textContent;
+            chatLog.innerHTML = '';
 
-        roomSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const div = document.createElement('div');
-            div.className = 'message ' + (data.username === currentUsername ? 'me' : 'other');
-            div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
-            chatLog.appendChild(div);
-            chatLog.scrollTop = chatLog.scrollHeight;
+            if (roomSocket) roomSocket.close();
 
-            updateChatList(data.sender_id || userId, data.message);
-        };
-    }
+            // Load previous messages via AJAX
+            try {
+                const response = await fetch(`/chat/chat/${userId}/?ajax=1`);
+                if (response.ok) {
+                    const messages = await response.json();
+                    messages.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'message ' + (m.sender === currentUsername ? 'me' : 'other');
+                        div.innerHTML = `<b>${escapeHtml(m.sender)}:</b> ${escapeHtml(m.text)}`;
+                        chatLog.appendChild(div);
+                    });
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            } catch (err) {
+                console.error(err);
+            }
 
-    // Attach click to existing chat links
-    document.querySelectorAll('.chat-link').forEach(link => link.addEventListener('click', openChat));
+            // Open room socket
+            const roomName = [currentUserId, userId].sort((a,b)=>a-b).join('_');
+            roomSocket = new WebSocket(`${protocol}//${host}/ws/chat/${roomName}/`);
 
-    // Sending message
+            roomSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+
+                // Only append to chat log if message belongs to this room
+                const relevant = (data.sender_id === activeUserId && data.receiver_id === currentUserId) ||
+                                 (data.sender_id === currentUserId && data.receiver_id === activeUserId);
+
+                if (relevant) {
+                    const div = document.createElement('div');
+                    div.className = 'message ' + (data.username === currentUsername ? 'me' : 'other');
+                    div.innerHTML = `<b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
+                    chatLog.appendChild(div);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+
+                    // Also update chat list
+                    updateChatListOrder(data.sender_id === currentUserId ? activeUserId : data.sender_id, data.message);
+                }
+            };
+        });
+    });
+
+    // -------------------------------
+    // Sending messages
+    // -------------------------------
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        if (!roomSocket || roomSocket.readyState !== WebSocket.OPEN) return;
+
         const message = chatInput.value.trim();
-        if (!message || !roomSocket || roomSocket.readyState !== WebSocket.OPEN) return;
+        if (!message) return;
 
         roomSocket.send(JSON.stringify({ message }));
-        updateChatList(activeUserId, message);
+        updateChatListOrder(activeUserId, message);
+
         chatInput.value = '';
         chatInput.focus();
     });
 
-    // Dynamic search
+    // -------------------------------
+    // Search
+    // -------------------------------
     searchInput.addEventListener('keyup', async function() {
         const q = searchInput.value.trim();
         try {
@@ -778,15 +814,6 @@ const res = await fetch(`${searchUrl}?ajax=1&q=${encodeURIComponent(q)}`);
             });
         } catch(err) { console.error(err); }
     });
-
-    // Optional: personal WebSocket for real-time notifications (new messages in other chats)
-    // const personalSocket = new WebSocket(`${protocol}//${host}/ws/chat/user_${currentUserId}/`);
-    // personalSocket.onmessage = function(e) {
-    //     const data = JSON.parse(e.data);
-    //     if (data.sender_id !== activeUserId) {
-    //         updateChatList(data.sender_id, data.message);
-    //     }
-    // };
 });
 </script>
 </body>
