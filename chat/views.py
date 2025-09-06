@@ -33,10 +33,14 @@ def chatlist(request):
         ).order_by("-timestamp").first()
         user.last_message = last_msg.text if last_msg else "No messages yet"
 
-    return render(request, "chat/chat_list.html", {"users": users, "q": q})
+    # Get the user's following list (up to 4 people)
+    following_list = Follow.objects.filter(follower=request.user).select_related('following')[:4]
 
-
-
+    return render(request, "chat/chat_list.html", {
+        "users": users, 
+        "q": q,
+        "following_list": following_list
+    })
 
 @login_required
 def chatpage(request, user_id):
@@ -75,10 +79,14 @@ def chatpage(request, user_id):
     user_ids_pair = sorted([request.user.id, other_user.id])
     room_name = f"{user_ids_pair[0]}_{user_ids_pair[1]}"
 
+    # Get the user's following list (up to 4 people)
+    following_list = Follow.objects.filter(follower=request.user).select_related('following')[:4]
+
     return render(request, "chat/chat_list.html", {
         "users": users,
         "room_name": room_name,
         "messages": messages,
         "other_user": other_user,
         "last_messages": last_messages,
+        "following_list": following_list,
     })

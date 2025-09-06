@@ -54,6 +54,47 @@ def logout_confirm(request):
 
 
 
+# @login_required
+# def profile_view(request, username):
+#     profile_user = get_object_or_404(User, username=username)
+#     profile = get_object_or_404(Profile, user=profile_user)
+
+#     # --- Handle POST updates ---
+#     if request.method == "POST" and request.user == profile_user:
+#         # Bio update
+#         new_bio = request.POST.get("bio")
+#         if new_bio is not None:
+#             profile.bio = new_bio.strip()
+#             profile.save()
+#             return redirect("profile", username=profile_user.username)
+
+#         # Profile picture update
+#         if "image" in request.FILES:
+#             profile.image = request.FILES["image"]
+#             profile.save()
+#             return redirect("profile", username=profile_user.username)
+
+#     # --- GET request (normal profile view) ---
+#     is_following = Follow.objects.filter(
+#         follower=request.user,
+#         following=profile_user
+#     ).exists()
+
+#     followers_count = Follow.objects.filter(following=profile_user).count()
+#     following_count = Follow.objects.filter(follower=profile_user).count()
+
+#     posts = profile_user.posts.order_by('-created_at')
+
+#     context = {
+#         "profile_user": profile_user,
+#         "profile": profile,
+#         "is_following": is_following,
+#         "followers_count": followers_count,
+#         "following_count": following_count,
+#         "posts": posts,
+#     }
+#     return render(request, "account/profile.html", context)
+
 @login_required
 def profile_view(request, username):
     profile_user = get_object_or_404(User, username=username)
@@ -82,6 +123,9 @@ def profile_view(request, username):
 
     followers_count = Follow.objects.filter(following=profile_user).count()
     following_count = Follow.objects.filter(follower=profile_user).count()
+    
+    # Get the user's following list (users that the profile_user is following)
+    following_list = Follow.objects.filter(follower=profile_user).select_related('following__profile')[:10]  # Limit to 10 for sidebar
 
     posts = profile_user.posts.order_by('-created_at')
 
@@ -91,11 +135,10 @@ def profile_view(request, username):
         "is_following": is_following,
         "followers_count": followers_count,
         "following_count": following_count,
+        "following_list": following_list,  # Add the following list to context
         "posts": posts,
     }
     return render(request, "account/profile.html", context)
-
-
 
 
 @login_required
@@ -285,12 +328,18 @@ def delete_comment(request):
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-
 @login_required
 def notifications_view(request):
     notifications = request.user.notifications.all().order_by('-created_at')
+    
+    # Get the user's following list for the sidebar
+    following_list = Follow.objects.filter(follower=request.user).select_related('following__profile')[:4]
 
     # Mark unread ones as read
     request.user.notifications.filter(is_read=False).update(is_read=True)
 
-    return render(request, "authy/notifications.html", {"notifications": notifications})
+    context = {
+        "notifications": notifications,
+        "following_list": following_list,  # Add following list to context
+    }
+    return render(request, "authy/notifications.html", context)

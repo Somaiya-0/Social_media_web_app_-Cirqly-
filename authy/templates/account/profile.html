@@ -122,6 +122,28 @@
     transform: scale(1.2);
   }
 
+  /* Fix for following list alignment */
+  .following-list-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.6rem 1rem !important;
+  }
+
+  .group-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .following-username {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .btn-logout {
     background-color: var(--primary-color);
     color: #fff;
@@ -895,7 +917,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="mb-2 fw-semibold">Favorites</div>
+                        <div class="mb-2 " style="font-weight: 700;">Favorites</div>
                         <ul class="list-group list-group-flush mb-4">
                             <li class="list-group-item">
                                 <a href="{% url 'chatlist' %}" class="text-decoration-none text-dark">
@@ -903,14 +925,14 @@
                                 </a>
                             </li>
                         </ul>
-                        <div class="mb-2 fw-semibold">Following</div>
+                        <div class="mb-2 " style="font-weight: 700;">Following</div>
                     <ul class="list-group list-group-flush">
                         {% for follow in following_list %}
-                            <li class="list-group-item d-flex align-items-center">
+                            <li class="list-group-item following-list-item">
                                 <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
-                                    class="group-avatar me-2" width="30" height="30">
+                                    class="group-avatar" width="30" height="30">
                                 <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
-                                    <span class="list-group-text">{{ follow.following.username }}</span>
+                                    <span class="following-username">{{ follow.following.username }}</span>
                                 </a>
                             </li>
                         {% empty %}
@@ -922,7 +944,7 @@
                     <div class="sidebar-bottom mt-4">
                         <form action="{% url 'logout_confirm' %}" method="get">
                             <button type="submit" class="btn btn-logout">
-                                <i class="bi bi-box-arrow-right"></i>
+                                
                                 <span>Log Out</span>
                             </button>
                         </form>
@@ -1124,6 +1146,7 @@
     </div>
   </div>
 </div>
+
 
 <script>
   // --- Mobile sidebar toggle ---
