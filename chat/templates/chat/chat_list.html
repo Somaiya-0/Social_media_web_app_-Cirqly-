@@ -583,32 +583,32 @@
                             <input type="text" id="chat-search-input" placeholder="Search users...">
                         </div>
                         <!-- Replace the chat-list section with this code -->
-<ul class="chat-list">
-    {% for user in users %}
-        <li>
-            <div class="chat-link" data-user-id="{{ user.id }}">
-                <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
-                <div class="chat-info">
-                    <div class="username">{{ user.username }}</div>
-                    <div class="last-message">
-                        {% if user.last_message %}
-                            {{ user.last_message }}
-                        {% else %}
-                            No messages yet
-                        {% endif %}
-                    </div>
-                    <div class="message-time" style="display: none;">
-                        {% if user.last_message_time %}
-                            {{ user.last_message_time|date:"U" }}
-                        {% else %}
-                            0
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </li>
-    {% endfor %}
-</ul>>
+                        <ul class="chat-list">
+                            {% for user in users %}
+                                <li>
+                                    <div class="chat-link" data-user-id="{{ user.id }}">
+                                        <img src="{{ user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="avatar">
+                                        <div class="chat-info">
+                                            <div class="username">{{ user.username }}</div>
+                                            <div class="last-message">
+                                                {% if user.last_message %}
+                                                    {{ user.last_message }}
+                                                {% else %}
+                                                    No messages yet
+                                                {% endif %}
+                                            </div>
+                                            <div class="message-time" style="display: none;">
+                                                {% if user.last_message_time %}
+                                                    {{ user.last_message_time|date:"U" }}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                 </li>
+                            {% endfor %}
+                        </ul>>
                     </div>
 
                     <!-- Chat Room -->
@@ -634,21 +634,30 @@
 </div>
 <script>
     // --- Mobile sidebar toggle ---
-    const hamburgerMenu = document.querySelector('.hamburger-menu');
-    const sidebar = document.querySelector('.sidebar');
-    
-    hamburgerMenu.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-    
-    // Close sidebar when clicking outside
-    document.addEventListener('click', (e) => {
-        if (sidebar.classList.contains('active') && 
-            !sidebar.contains(e.target) && 
-            !hamburgerMenu.contains(e.target)) {
-            sidebar.classList.remove('active');
-        }
-    });
+   const hamburgerMenu = document.querySelector('.hamburger-menu');
+const sidebar = document.querySelector('.sidebar');
+
+hamburgerMenu.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+
+    // Hide hamburger when sidebar is active
+    if (sidebar.classList.contains('active')) {
+        hamburgerMenu.style.display = 'none';
+    } else {
+        hamburgerMenu.style.display = 'block';
+    }
+});
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('active') &&
+        !sidebar.contains(e.target) &&
+        !hamburgerMenu.contains(e.target)) {
+        sidebar.classList.remove('active');
+        // Show hamburger again
+        hamburgerMenu.style.display = 'block';
+    }
+});
 
     // Chat functionality
 document.addEventListener('DOMContentLoaded', function() {

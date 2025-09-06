@@ -54,46 +54,6 @@ def logout_confirm(request):
 
 
 
-# @login_required
-# def profile_view(request, username):
-#     profile_user = get_object_or_404(User, username=username)
-#     profile = get_object_or_404(Profile, user=profile_user)
-
-#     # --- Handle POST updates ---
-#     if request.method == "POST" and request.user == profile_user:
-#         # Bio update
-#         new_bio = request.POST.get("bio")
-#         if new_bio is not None:
-#             profile.bio = new_bio.strip()
-#             profile.save()
-#             return redirect("profile", username=profile_user.username)
-
-#         # Profile picture update
-#         if "image" in request.FILES:
-#             profile.image = request.FILES["image"]
-#             profile.save()
-#             return redirect("profile", username=profile_user.username)
-
-#     # --- GET request (normal profile view) ---
-#     is_following = Follow.objects.filter(
-#         follower=request.user,
-#         following=profile_user
-#     ).exists()
-
-#     followers_count = Follow.objects.filter(following=profile_user).count()
-#     following_count = Follow.objects.filter(follower=profile_user).count()
-
-#     posts = profile_user.posts.order_by('-created_at')
-
-#     context = {
-#         "profile_user": profile_user,
-#         "profile": profile,
-#         "is_following": is_following,
-#         "followers_count": followers_count,
-#         "following_count": following_count,
-#         "posts": posts,
-#     }
-#     return render(request, "account/profile.html", context)
 
 @login_required
 def profile_view(request, username):
@@ -320,13 +280,18 @@ def delete_comment(request):
         comment = get_object_or_404(Comment, id=comment_id)
 
         if comment.user == request.user:
-            post_id = comment.post.id
+            post = comment.post  # get the post object
             comment.delete()
-            return JsonResponse({'success': True, 'post_id': post_id})
+            return JsonResponse({
+                'success': True,
+                'post_id': post.id,
+                'total_comments': post.comments.count()  # <-- return updated count
+            })
         else:
             return JsonResponse({'success': False, 'error': 'Unauthorized'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
 
 @login_required
 def notifications_view(request):

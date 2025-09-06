@@ -144,6 +144,10 @@
     text-overflow: ellipsis;
   }
 
+  .sidebar-bottom {
+    margin-bottom: 30px;
+    margin-top: auto; /* push it to the bottom */
+}
   .btn-logout {
     background-color: var(--primary-color);
     color: #fff;
@@ -926,19 +930,19 @@
                             </li>
                         </ul>
                         <div class="mb-2 " style="font-weight: 700;">Following</div>
-<ul class="list-group list-group-flush">
-  {% for follow in request.user.following_relations.all %}
-    <li class="list-group-item following-list-item">
-      <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
-          class="group-avatar" width="30" height="30">
-      <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
-        <span class="following-username">{{ follow.following.username }}</span>
-      </a>
-    </li>
-  {% empty %}
-    <li class="list-group-item text-muted">You are not following anyone yet</li>
-  {% endfor %}
-</ul>
+                          <ul class="list-group list-group-flush">
+                            {% for follow in request.user.following_relations.all %}
+                              <li class="list-group-item following-list-item">
+                                <img src="{{ follow.following.profile.image.url|default:'https://i.pravatar.cc/30' }}" 
+                                    class="group-avatar" width="30" height="30">
+                                <a href="{% url 'profile' follow.following.username %}" class="text-decoration-none text-dark">
+                                  <span class="following-username">{{ follow.following.username }}</span>
+                                </a>
+                              </li>
+                            {% empty %}
+                              <li class="list-group-item text-muted">You are not following anyone yet</li>
+                            {% endfor %}
+                          </ul>
                     </div>
 
                     <div class="sidebar-bottom mt-4">
@@ -1049,19 +1053,19 @@
                     <div class="comments-section" id="comments-{{ post.id }}">
                       <div class="comments-list">
                         {% for comment in post.comments.all %}
-                        <div class="comment-item" id="comment-{{ comment.id }}">
-                          <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
-                          <div class="comment-content">
-                            {% if comment.user == request.user or post.user == request.user %}
-                            <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
-                              <i class="bi bi-trash"></i>
-                            </button>
-                            {% endif %}
-                            <span class="fw-semibold">{{ comment.user.username }}</span>
-                            <div>{{ comment.content }}</div>
-                            <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-                          </div>
-                        </div>
+                         <div class="comment-item" id="comment-{{ comment.id }}">
+      <img src="{{ comment.user.profile.image.url|default:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png' }}" class="comment-avatar">
+      <div class="comment-content">
+        {% if comment.user == request.user %}
+        <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
+          <i class="bi bi-trash"></i>
+        </button>
+        {% endif %}
+        <span class="fw-semibold">{{ comment.user.username }}</span>
+        <div>{{ comment.content }}</div>
+        <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+      </div>
+    </div>
                         {% endfor %}
                       </div>
 
